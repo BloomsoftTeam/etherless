@@ -20,7 +20,6 @@ This section refer to the deploy of ```etherless DynamoDB table```, ```API Gatew
 
 ## Deploy of AWS EC2 Istance
 Gian
-todo
 
 ## Deploy of Smart Contracts
 Gian
