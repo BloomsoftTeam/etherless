@@ -41,18 +41,21 @@ class EthereumManager implements EthereumManagerInterface {
   readonly ethersHelper: EthersHelper;
 
   readonly storageContractAddress: string;
+
   readonly deployContractAddress: string;
+
   readonly runContractAddress: string;
+
   readonly deleteContractAddress: string;
 
   wallet: Wallet;
 
-  constructor(ethersHelper: EthersHelper, storageAddress: string, deployAddress: string, runAddress: string, deleteAddress: string) {
+  constructor(ethersHelper: EthersHelper, contracts: ContractAddressesInterface) {
     this.ethersHelper = ethersHelper;
-    this.storageContractAddress = storageAddress;
-    this.deployContractAddress = deployAddress;
-    this.runContractAddress = runAddress;
-    this.deleteContractAddress = deleteAddress;
+    this.storageContractAddress = contracts.storage;
+    this.deployContractAddress = contracts.deploy;
+    this.runContractAddress = contracts.run;
+    this.deleteContractAddress = contracts.remove;
   }
 
   generateNewWallet(): Wallet {
