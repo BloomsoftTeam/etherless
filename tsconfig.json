@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "target": "es5",
+    "module": "commonjs"
+  },
+  "include": [
+    "cli/**/*.ts",
+    "server/*.ts",
+    "smart/**/*.ts"
+  ]
+}

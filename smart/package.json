@@ -1,0 +1,25 @@
+{
+  "name": "etherless-smart",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "oz compile && mocha -r ts-node/register --exit --recursive test/*.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/1dotd4/etherless.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/1dotd4/etherless/issues"
+  },
+  "homepage": "https://github.com/1dotd4/etherless#readme",
+  "dependencies": {
+    "@openzeppelin/test-environment": "^0.1.4",
+    "@openzeppelin/test-helpers": "^0.5.5",
+    "@truffle/hdwallet-provider": "^1.0.34",
+    "chai": "^4.2.0"
+  }
+}

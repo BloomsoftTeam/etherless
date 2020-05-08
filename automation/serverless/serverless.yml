@@ -1,0 +1,95 @@
+#modificare riga 3, 13, 20, 49 con i nomi giusti per etherless
+
+service: etherless
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  region: eu-west-2
+  memorySize: 128
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource:
+        - { "Fn::GetAtt": ["etherless", "Arn" ] }
+
+functions:
+  app:
+    handler: app.server
+    events: 
+      - http: 
+          path: /list
+          method: GET
+          cors: true
+      - http: 
+          path: /list/hidden
+          method: GET
+          cors: true
+      - http: 
+          path: /list/owner/{proxy+}
+          method: GET
+          cors: true
+      - http:
+          path: /search/{proxy+}
+          method: GET
+          cors: true
+
+resources:
+  Resources:
+    etherless:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+        - AttributeName: devAddress
+          AttributeType: S
+        - AttributeName: funcName
+          AttributeType: S
+        - AttributeName: unavailable
+          AttributeType: S
+        KeySchema:
+        - AttributeName: devAddress
+          KeyType: HASH
+        - AttributeName: funcName
+          KeyType: RANGE
+        ProvisionedThroughput:
+          ReadCapacityUnits: '5'
+          WriteCapacityUnits: '5'
+        TableName: etherless
+        GlobalSecondaryIndexes:
+        - IndexName: unavailable-index
+          KeySchema:
+          - AttributeName: unavailable
+            KeyType: HASH
+          Projection:
+            NonKeyAttributes:
+            - funcName
+            - description
+            - params
+            - price
+            - usage
+            ProjectionType: INCLUDE
+          ProvisionedThroughput:
+            ReadCapacityUnits: '5'
+            WriteCapacityUnits: '5'
+        - IndexName: devAddress-index
+          KeySchema:
+          - AttributeName: devAddress
+            KeyType: HASH
+          Projection:
+            NonKeyAttributes:
+            - funcName
+            - description
+            - params
+            - price
+            - unavailable
+            - usage
+            ProjectionType: INCLUDE
+          ProvisionedThroughput:
+            ReadCapacityUnits: '5'
+            WriteCapacityUnits: '5'

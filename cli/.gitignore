@@ -1,0 +1,6 @@
+node_modules/
+
+package.json
+package-lock.json
+.credentials/private.key
+.credentials/wallet.txt

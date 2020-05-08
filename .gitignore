@@ -1,0 +1,12 @@
+node_modules/
+**/node_modules/
+.vscode/
+**/private.key
+private.key
+.env
+tmp/*
+.serverless/
+.scannerwork/
+.nyc_output/
+coverage/
+.openzeppelin/
