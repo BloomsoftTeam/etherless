@@ -35,16 +35,12 @@ function buildClient(opts: ClientOption): EtherlessClient {
   if (opts.smart) {
     const infura = new InfuraProvider('ropsten', process.env.INFURA_PROJECT_ID);
     const ethersHelper = new EthersHelper(infura, ETHERSCAN_API_KEY);
-<<<<<<< HEAD
     ethereumManager = new EthereumManager(ethersHelper, {
       storage: process.env.STORAGE_CONTRACT_ADDRESS,
       deploy: process.env.DEPLOY_CONTRACT_ADDRESS,
       run: process.env.RUN_CONTRACT_ADDRESS,
       remove: process.env.DELETE_CONTRACT_ADDRESS,
     });
-=======
-    ethereumManager = new EthereumManager(ethersHelper, process.env.STORAGE_CONTRACT_ADDRESS, process.env.DEPLOY_CONTRACT_ADDRESS, process.env.RUN_CONTRACT_ADDRESS, process.env.DELETE_CONTRACT_ADDRESS);
->>>>>>> 9d9cb95... minor fix
   }
   if (opts.server) {
     serverManager = new ServerManager(SERVER_EDGE, API_EDGE);
