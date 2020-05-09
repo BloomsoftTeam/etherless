@@ -1,11 +1,3 @@
-// import ProofToken = require('ProofToken');
-/*
-TODO: "include": [
-        "src/**^^/*"
-    ],
-  in tsconfig.json
-*/
-
 import _sodium = require('libsodium-wrappers');
 
 const tokenByteSize = 64;

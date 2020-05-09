@@ -9,10 +9,8 @@ const hiddenIndex = 'unavailable-index';
 const ownerIndex = 'devAddress-index';
 const cors = require ('cors');
 const fileUpload = require ('express-fileupload');
-const config = { accessKeyId: '***REMOVED***', secretAccessKey: '***REMOVED***', region: 'eu-west-2' };
+const config = { accessKeyId: process.env.AWS_ID, secretAccessKey: process.env.AWS_KEY, region: 'eu-west-2' };
 const dynamoDb = new AWS.DynamoDB.DocumentClient(config);
-const lambdaConfig = { accessKeyId: '***REMOVED***', secretAccessKey: '***REMOVED***', region: 'eu-west-2' };
-const lambda = new AWS.Lambda(lambdaConfig);
 
 app.use(bodyParser.json({ strict: false }));
 app.use(cors());

@@ -14,15 +14,11 @@ class KeyManager {
 
   readonly magicNumber = 'etlkey';
 
-  private password;
+  private readonly password;
 
   constructor(password?: string) {
     this.privatePath = path.resolve(this.credentialsPath, 'private.key');
     this.walletPath = path.resolve(this.credentialsPath, 'wallet.txt');
-    this.password = password;
-  }
-
-  setPassword(password: string) {
     this.password = password;
   }
 
