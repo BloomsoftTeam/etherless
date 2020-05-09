@@ -11,9 +11,7 @@ export interface AWSManagerInterface {
 }
 
 class AWSManager implements AWSManagerInterface {
-  readonly config: AWS.Config = new AWS.Config({
-    accessKeyId: '***REMOVED***', secretAccessKey: '***REMOVED***', region: 'eu-west-2',
-  });
+  readonly config: AWS.Config;
 
   readonly router: string;
 
@@ -23,10 +21,13 @@ class AWSManager implements AWSManagerInterface {
 
   readonly LambdaRole: string = 'arn:aws:iam::509208239844:role/lambda-full-api-gateway';
 
-  constructor(router: string) {
-    this.router = router;
+  constructor(accessKeyId: string, secretAccessKey: string, lambdaRole: string) {
+    this.config = new AWS.Config({
+      accessKeyId, secretAccessKey, region: 'eu-west-2',
+    });
     this.lambda = new AWS.Lambda(this.config);
     this.docClient = new AWS.DynamoDB.DocumentClient(this.config);
+    this.LambdaRole = lambdaRole;
   }
 
   deployFunction(fileStream: ArrayBuffer, funcData: any): Promise<void> {

@@ -104,7 +104,13 @@ class EtherlessClient implements EtherlessClientInterface {
         .then(() => {
           // log.info('[EtherlessClient]\trichiesta inviata');
         })
-        .catch(reject);
+        .catch((err) => {
+          this.ethereumManager.terminateListenDeleteToken()
+            .then(() => {
+              reject(err);
+            })
+            .catch(reject);
+        });
       this.ethereumManager.listenOperationTokenDeleteEvent(funcName)
         .then((opToken) => {
           log.info('[EtherlessClient]\tReceived token.');

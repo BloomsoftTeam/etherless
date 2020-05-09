@@ -35,7 +35,12 @@ function buildClient(opts: ClientOption): EtherlessClient {
   if (opts.smart) {
     const infura = new InfuraProvider('ropsten', process.env.INFURA_PROJECT_ID);
     const ethersHelper = new EthersHelper(infura, ETHERSCAN_API_KEY);
-    ethereumManager = new EthereumManager(ethersHelper);
+    ethereumManager = new EthereumManager(ethersHelper, {
+      storage: process.env.STORAGE_CONTRACT_ADDRESS,
+      deploy: process.env.DEPLOY_CONTRACT_ADDRESS,
+      run: process.env.RUN_CONTRACT_ADDRESS,
+      remove: process.env.DELETE_CONTRACT_ADDRESS,
+    });
   }
   if (opts.server) {
     serverManager = new ServerManager(SERVER_EDGE, API_EDGE);
@@ -220,14 +225,14 @@ function initFunction() {
 
 // dipende solo da Key e Ethereum (e ethers), Server e Token
 function deployFunction(argv) {
-  let keyManager = new KeyManager();
+  const keyManager = new KeyManager();
 
   keyManager.checkCredentialsExistance()
     .then(() => {
       askPassword()
         .then((password) => {
           const client = buildClient(<ClientOption> { smart: true, server: true, token: true });
-          keyManager = new KeyManager(password);
+          keyManager.setPassword(password);
 
           const funcName = argv._[1];
           keyManager.loadCredentials()
@@ -235,7 +240,8 @@ function deployFunction(argv) {
               const wallet = client.linkWalletWithKey(key);
               log.info(`Getting wallet from credentials: ${wallet.address}`);
               const zipFile = fs.readFileSync(`${funcName}.zip`);
-              const funcData = fs.readFileSync(`${funcName}.json`);
+              const funcData = JSON.parse((fs.readFileSync(`${funcName}.json`)).toString());
+              funcData.owner = wallet.address;
               client.deployFunction(funcName, zipFile, funcData)
                 .then(() => {
                   log.info('The function was successfully uploaded to the platform and is now available to be executed.');
@@ -264,14 +270,14 @@ function logout() {
 
 // dipende solo da Key e Ethereum (e ethers), Server e Token
 function runFunction(argv) {
-  let keyManager = new KeyManager();
+  const keyManager = new KeyManager();
 
   keyManager.checkCredentialsExistance()
     .then(() => {
       askPassword()
         .then((password) => {
           const client = buildClient(<ClientOption> { smart: true, server: true, token: true });
-          keyManager = new KeyManager(password);
+          keyManager.setPassword(password);
 
           const paramsArr = argv._.filter((value, index) => index > 1);
 
@@ -355,7 +361,7 @@ function searchFunction(argv) {
 }
 
 function deleteFunction(argv) {
-  let keyManager = new KeyManager();
+  const keyManager = new KeyManager();
 
   keyManager.checkCredentialsExistance()
     .then(() => {
@@ -364,7 +370,7 @@ function deleteFunction(argv) {
           const client = buildClient(<ClientOption> { smart: true, server: true });
 
           const funcName = argv._[1];
-          keyManager = new KeyManager(password);
+          keyManager.setPassword(password);
           keyManager.loadCredentials()
             .then((key) => {
               const wallet = client.linkWalletWithKey(key);
@@ -376,7 +382,6 @@ function deleteFunction(argv) {
                 })
                 .catch(() => {
                   log.info('This function may not exist or you are not allowed delete this function.');
-                  process.exit(0);
                 });
             })
             .catch((err) => {
