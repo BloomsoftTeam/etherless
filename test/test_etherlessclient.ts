@@ -31,7 +31,7 @@ const moneyWallet = new Wallet('0xc06d007178f5141e3ef38725c1f4be28507e3c10d85eba
 
 describe('linkWalletWithKey', () => {
   it('linkWalletWithKey is working', (done) => {
-    const key = '***REMOVED***';
+    const key = process.env.ADMIN_WALLET_KEY;
     new Promise((resolve, reject) => {
        expect((etherlessClient.linkWalletWithKey(key)).address).to.be.equal("0xe710597dE7cd68A8F9938dDfe7140f3fDf39AbB0");
        done();
