@@ -436,7 +436,7 @@ function helpFunction(argv) {
       }
       case 'createConfig': {
         log.info('usage: etherless createConfig');
-        log.info('Creates a JSON file in Download folder with empty parameters to configure the deploy of a function:\n funcName: the name of the function\n description: the description of the function\n timeout: the maximum execution time of the function\n wallet: the address of the developer\n fee: the amount of money earned for every successful execution\n path: the relative path in which the function will be run.');
+        log.info('Creates a JSON file in Download folder with empty parameters to configure the deploy of a function:\n funcName: the name of the function\n description: the description of the function\n timeout: the maximum execution time of the function\n owner: the address of the developer\n fee: the amount of money earned for every successful execution\n path: the relative path in which the function will be run.');
         break;
       }
       default: {
