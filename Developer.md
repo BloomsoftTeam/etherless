@@ -7,7 +7,10 @@ In this file there the instruction for future developers who will improve the pl
 - ```aws-sdk``` installed on the directory you are working. 
 
 ## Cli Installation and usage
-Refer to the user manual for configuration and usage of ```etherless cli```.
+- open a terminal window;
+- clone the ```etherless repository```, using ```git clone https://github.com/BloomsoftTeam/etherless.git```;
+- move inside the ```etherless``` directory and, by command line, type ```npm install```;
+- differently from the user version, the cloned repository is wrote in ```TypeScript```, so, instead of typing ```etherless [command]```, you need to type ```ts-node cli/index.ts [command]``` to execute a user-like command (always from the ```etherless``` directory).
 
 ## Deploy of AWS Services
 This section refer to the deploy of ```etherless DynamoDB table```, ```API Gateway``` to handle database interaction, and ```AWS Lambda function``` creation and removal.
