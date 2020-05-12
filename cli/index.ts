@@ -294,7 +294,7 @@ function runFunction(argv) {
               const wallet = client.linkWalletWithKey(key);
               log.info(`Getting wallet from credentials: ${wallet.address}`);
               client.runFunction(funcName, JSON.stringify(paramsJson)) // TODO: wallet vuoto
-                .then((results: any) => {
+                .then((result: any) => {
                   log.info(`Result: ${result.result}`);
                   log.info(`Execution time: ${result.duration} s`);
                   log.info(`Price: ${result.price} ETH`);
