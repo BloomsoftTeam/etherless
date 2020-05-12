@@ -1,5 +1,4 @@
 import { Wallet } from 'ethers';
-import ora from 'ora';
 import { EthereumManagerInterface } from './EthereumManager';
 import { TokenManagerInterface } from './common/TokenManager';
 import { ServerManagerInterface, RequestOptions } from './ServerManager';

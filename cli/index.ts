@@ -296,7 +296,11 @@ function runFunction(argv) {
               log.info(`Getting wallet from credentials: ${wallet.address}`);
               client.runFunction(funcName, JSON.stringify(paramsJson))
                 .then((results: any) => {
-                  const res = JSON.parse(JSON.parse(JSON.parse(JSON.parse(results).Payload).body).sum);
+                  const res = JSON
+                    .parse(JSON
+                    .parse(JSON
+                    .parse(JSON
+                    .parse(results).Payload).body).sum);
                   log.info(`Result: ${res}`);
                   log.info(`Execution time: ${0.1} s`);
                   log.info(`Price: ${0.1} ETH`);

@@ -145,7 +145,7 @@ class AWSManager implements AWSManagerInterface {
           reject(err);
           return;
         }
-        if (data.Count != 1) {
+        if (data.Count !== 1) {
           log.error('Why are you running?');
           reject(err);
           return;
