@@ -115,6 +115,13 @@ class AWSManager implements AWSManagerInterface {
     });
   }
 
+  getExecutionTimeFrom(logResult: string): number {
+    const keyword = 'Billed Duration:';
+    const index = logResult.indexOf(keyword);
+    const duration = parseInt(logResult.substring(index + keyword.length), 10);
+    return duration;
+  }
+
   deleteFunction(funcName: string, devAddress: string): Promise<void> {
     // devAddress ottenuto dall'evento smart di deleteContract
     return new Promise((resolve, reject) => {

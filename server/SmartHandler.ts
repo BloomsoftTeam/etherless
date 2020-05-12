@@ -1,4 +1,4 @@
-import { Wallet } from 'ethers';
+import { Wallet, utils } from 'ethers';
 import log from './common/Logger';
 import EthersHelper from './common/EthersHelper';
 // import { TokenManagerInterface } from './common/TokenManager';
