@@ -10,6 +10,11 @@ export interface AWSManagerInterface {
   deleteFunction(funcName: string, devAddress: string): Promise<void>;
 }
 
+export interface FunctionDataInterface {
+  funcPrice: number;
+  funcOwner: string;
+}
+
 class AWSManager implements AWSManagerInterface {
   readonly config: AWS.Config;
 
@@ -20,6 +25,8 @@ class AWSManager implements AWSManagerInterface {
   readonly docClient: AWS.DynamoDB.DocumentClient;
 
   readonly LambdaRole: string;
+
+  readonly RunKeyword: string = 'Billed Duration:';
 
   constructor(accessKeyId: string, secretAccessKey: string, lambdaRole: string) {
     this.config = new AWS.Config({
@@ -53,6 +60,7 @@ class AWSManager implements AWSManagerInterface {
         VpcConfig: {
         },
       };
+
       const devAddress = funcData.owner;
       const { funcName } = funcData;
       const { description } = funcData;
@@ -116,10 +124,38 @@ class AWSManager implements AWSManagerInterface {
   }
 
   getExecutionTimeFrom(logResult: string): number {
-    const keyword = 'Billed Duration:';
-    const index = logResult.indexOf(keyword);
-    const duration = parseInt(logResult.substring(index + keyword.length), 10);
+    const index = logResult.indexOf(this.RunKeyword);
+    const duration = parseInt(logResult.substring(index + this.RunKeyword.length), 10);
     return duration;
+  }
+
+  getFunctionData(funcName: string): Promise<FunctionDataInterface> {
+    return new Promise((resolve, reject) => {
+      const dbQuery = {
+        TableName: 'etherless',
+        ExpressionAttributeValues: {
+          ':v1': funcName,
+        },
+        FilterExpression: 'funcName = :v1',
+        ProjectionExpression: 'devAddress, price',
+      };
+      this.docClient.scan(dbQuery, (err, data) => {
+        if (err) {
+          log.error('Unable to get item. Error JSON:', JSON.stringify(err, null, 2));
+          reject(err);
+          return;
+        }
+        if (data.Count != 1) {
+          log.error('Why are you running?');
+          reject(err);
+          return;
+        }
+        resolve(<FunctionDataInterface> {
+          funcPrice: data.Items[0].price,
+          funcOwner: data.Items[0].devAddress,
+        });
+      });
+    });
   }
 
   deleteFunction(funcName: string, devAddress: string): Promise<void> {

@@ -45,15 +45,11 @@ app.use(fileUpload({
   },
 }));
 
-// const awsManager = new AWSManager('');
-// const tokenManager = new TokenManager();
 const infuraProvider = new InfuraProvider('ropsten', INFURA_PROJECT_ID);
 log.info(`[server] Infura API Key: ${INFURA_PROJECT_ID}`);
 log.info(`[server] Etherscan API Key: ${ETHERSCAN_API_KEY}`);
 const ethersHelper = new EthersHelper(infuraProvider, ETHERSCAN_API_KEY);
-// const serverHandler = new ServerHandler('', tokenManager);
 const smartHandler = new SmartHandler(ethersHelper, ADMIN_WALLET_PRIVATE_KEY);
-//              token : address
 
 interface TokenData {
   devAddress: string;
@@ -74,7 +70,6 @@ smartHandler.listenTokenRequests((reqToken: string, opToken: string, devAddress:
 smartHandler.listenRunRequest(
   (opToken: string, funcName: string, params: string) => {
     log.info('[server] Received token from blockchain to run.');
-    // const objParams = JSON.parse(params);
     setTimeout(() => {
       log.info('[server] Executing lambda.');
       aws.invokeLambda(funcName, params)
@@ -86,7 +81,7 @@ smartHandler.listenRunRequest(
           const logResult = b.toString();
           const billedDuration = aws.getExecutionTimeFrom(logResult);
           const awsTier = 0.0000002083; // for lambda function with 128 MB cpu environment
-          const executionPrice = (billedDuration / 1000) * (128 / 1024) * awsTier;
+          const executionPrice = (billedDuration / 1000) * (128 / 1024) * awsTier * 1.1;
           const executionPriceInWei = executionPrice * 0.006; // change $ -> ETH del 12 maggio 2020
           const resultObj = {
             result: lambdaResult,
@@ -94,14 +89,24 @@ smartHandler.listenRunRequest(
             price: executionPriceInWei,
           };
 
-          // TODO Pescare le dev Fee e devAddress da DynamoDB
-          smartHandler.sendRunResult(JSON.stringify(resultObj),
-            executionPriceInWei,
-            devFee,
-            devAddress,
-            opToken)
+          aws.getFunctionData(funcName)
+            .then((dataFun) => {
+              const devFee = dataFun.funcPrice;
+              const devAddress = dataFun.funcOwner;
+
+              console.log(dataFun);
+
+              smartHandler.sendRunResult(JSON.stringify(resultObj),
+                executionPriceInWei,
+                devFee,
+                devAddress,
+                opToken)
+                .catch((err) => {
+                  log.error(`[server] Failed sending results ${err}`);
+                });
+            })
             .catch((err) => {
-              log.error(`[server] Failed sending results ${err}`);
+              log.error(`[server] AWS search query failed with error ${err}`);
             });
         })
         .catch((err) => {
