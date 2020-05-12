@@ -14,7 +14,6 @@ import { EtherlessClient } from './EtherlessClient';
 
 dotenv.config({ path: path.resolve(__dirname, '.env') });
 
-// const SERVER_EDGE = 'https://bd9fnvjncl.execute-api.eu-west-2.amazonaws.com/etherless_test/etherless';
 const {
   SERVER_EDGE,
   API_EDGE,
@@ -294,16 +293,11 @@ function runFunction(argv) {
             .then((key) => {
               const wallet = client.linkWalletWithKey(key);
               log.info(`Getting wallet from credentials: ${wallet.address}`);
-              client.runFunction(funcName, JSON.stringify(paramsJson))
+              client.runFunction(funcName, JSON.stringify(paramsJson)) // TODO: wallet vuoto
                 .then((results: any) => {
-                  const res = JSON
-                    .parse(JSON
-                    .parse(JSON
-                    .parse(JSON
-                    .parse(results).Payload).body).sum);
-                  log.info(`Result: ${res}`);
-                  log.info(`Execution time: ${0.1} s`);
-                  log.info(`Price: ${0.1} ETH`);
+                  log.info(`Result: ${result.result}`);
+                  log.info(`Execution time: ${result.duration} s`);
+                  log.info(`Price: ${result.price} ETH`);
                 })
                 .catch(() => {
                   log.info('Cannot run function. It may not exist or may not be available.');
@@ -383,7 +377,7 @@ function deleteFunction(argv) {
               client.deleteFunction(funcName)
                 .then(() => {
                   // viene restituito null sia che venga eliminata che non
-                  log.info('You have successfully removed the function Fibonacci from the platform.');
+                  log.info(`You have successfully removed the function ${funcName} from the platform.`);
                 })
                 .catch(() => {
                   log.info('This function may not exist or you are not allowed delete this function.');

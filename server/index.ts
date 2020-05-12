@@ -75,14 +75,14 @@ smartHandler.listenRunRequest(
       aws.invokeLambda(funcName, params)
         .then((result) => {
           log.info('[server] Got result from lambda.');
-          const lambdaResult = result.Payload.body.result;
+          const lambdaResult = JSON.parse(result.Payload).body;
           const logResultEncoded = result.LogResult;
           const b = Buffer.from(logResultEncoded, 'base64');
           const logResult = b.toString();
           const billedDuration = aws.getExecutionTimeFrom(logResult);
           const awsTier = 0.0000002083; // for lambda function with 128 MB cpu environment
           const executionPrice = (billedDuration / 1000) * (128 / 1024) * awsTier * 1.1;
-          const executionPriceInWei = executionPrice * 0.006; // change $ -> ETH del 12 maggio 2020
+          const executionPriceInWei = executionPrice * 0.006 * 1000000000000000000; // change $ -> ETH del 12 maggio 2020
           const resultObj = {
             result: lambdaResult,
             duration: billedDuration,
@@ -93,8 +93,6 @@ smartHandler.listenRunRequest(
             .then((dataFun) => {
               const devFee = dataFun.funcPrice;
               const devAddress = dataFun.funcOwner;
-
-              console.log(dataFun);
 
               smartHandler.sendRunResult(JSON.stringify(resultObj),
                 executionPriceInWei,
@@ -160,7 +158,7 @@ app.post('/deploy', (req, res) => {
                 log.info('Function deployed.');
                 smartHandler.terminateDeploy(funcName,
                   tokens[proof].devAddress,
-                  funcDataObj.fee,
+                  funcDataObj.fee * 1000,
                   tokens[proof].opToken)
                   .then(() => {
                     log.info(`[server] ${funcDataObj.funcName}`);

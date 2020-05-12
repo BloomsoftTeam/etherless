@@ -22,11 +22,10 @@ export interface EthereumManagerInterface {
   sendDeleteRequest(funcName: string): Promise<void>;
   listenRunEvents(myOpToken: string): Promise<string>;
   listenOperationTokenRunEvent(funcName: string): Promise<string>; // todo cambiare con un token
-  listenOperationTokenDeleteEvent(funcName: string): Promise<string>;
+  listenOperationTokenDeleteEvent(funcName: string): Promise<DeletePromiseInterface>;
   listenRequestUploadEvents(onEvent: any);
   listenDeleteEvents(myOpToken: string): Promise<void>;
   listenOperationTokenDeployEvents(signedToken: string): Promise<string>;
-  terminateListenDeleteToken(): Promise<void>;
 }
 
 export interface ContractAddressesInterface {
@@ -34,6 +33,11 @@ export interface ContractAddressesInterface {
   deploy: string;
   run: string;
   remove: string;
+}
+
+export interface DeletePromiseInterface {
+  terminate: any;
+  promise: Promise<string>;
 }
 
 class EthereumManager implements EthereumManagerInterface {
@@ -221,15 +225,22 @@ class EthereumManager implements EthereumManagerInterface {
     });
   }
 
-  listenOperationTokenDeleteEvent(myFunc: string): Promise<string> {
+  listenOperationTokenDeleteEvent(myFunc: string): Promise<DeletePromiseInterface> {
     return new Promise((resolve, reject) => {
       this.ethersHelper.loadSmartContract(this.deleteContractAddress, this.wallet)
         .then((deleteContract) => {
-          deleteContract.on(DeleteEventToken, (opToken: string, funcName: string) => {
-            if (myFunc === funcName) {
-              resolve(opToken);
+          resolve(<DeletePromiseInterface>{
+            terminate: () => {
               deleteContract.removeAllListeners(DeleteEventToken);
-            }
+            },
+            promise: new Promise((done) => {
+              deleteContract.on(DeleteEventToken, (opToken: string, funcName: string) => {
+                if (myFunc === funcName) {
+                  done(opToken);
+                  deleteContract.removeAllListeners(DeleteEventToken);
+                }
+              });
+            }),
           });
         }).catch(reject);
     });
@@ -256,17 +267,6 @@ class EthereumManager implements EthereumManagerInterface {
             }
           });
         });
-    });
-  }
-
-  terminateListenDeleteToken(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      this.ethersHelper.loadSmartContract(this.deleteContractAddress, this.wallet)
-        .then((deleteContract) => {
-          deleteContract.removeAllListeners(DeleteEventToken);
-          resolve();
-        })
-        .catch(reject);
     });
   }
 }
