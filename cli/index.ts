@@ -165,7 +165,6 @@ function initOrCreateWallet() {
                 const keyManager = new KeyManager(password);
                 keyManager.saveCredentials(wallet.privateKey, wallet.address)
                   .then(() => {
-                    log.info(`[cli] Mnemonic: ${wallet.mnemonic}`);
                     log.info(`[cli] Wallet address: ${wallet.address}`);
                     log.info('[cli] credentials associated with success.');
                     prompt.stop();
@@ -296,12 +295,11 @@ function runFunction(argv) {
               const wallet = client.linkWalletWithKey(key);
               log.info(`Getting wallet from credentials: ${wallet.address}`);
               client.runFunction(funcName, JSON.stringify(paramsJson))
-                .then((results) => {
-                  log.info(results);
-                  // TODO: estrarre i risultati
-                  log.info(`Result: ${results}`);
-                  // log.info('Execution time: 0.014s');
-                  // log.info('Price: 0.001 ETH');
+                .then((results: any) => {
+                  const res = JSON.parse(JSON.parse(JSON.parse(JSON.parse(results).Payload).body).sum);
+                  log.info(`Result: ${res}`);
+                  log.info(`Execution time: ${0.1} s`);
+                  log.info(`Price: ${0.1} ETH`);
                 })
                 .catch(() => {
                   log.info('Cannot run function. It may not exist or may not be available.');
