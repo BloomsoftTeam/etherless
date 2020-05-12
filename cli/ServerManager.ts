@@ -1,6 +1,5 @@
 import FormData from 'form-data';
 import fetch from 'node-fetch';
-import log from './common/Logger';
 
 export interface ServerManagerInterface {
   getFunctionsWith(_opt: RequestOptions): Promise<string>;
