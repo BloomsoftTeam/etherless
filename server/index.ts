@@ -27,10 +27,13 @@ const {
   ETHERSCAN_API_KEY,
   ADMIN_WALLET_PRIVATE_KEY,
   INFURA_PROJECT_ID,
+  AWS_ID,
+  AWS_KEY,
+  AWS_LAMBDA_ROLE,
 } = process.env;
 
 const app = express();
-const aws = new AWSManager('');
+const aws = new AWSManager(AWS_ID, AWS_KEY, AWS_LAMBDA_ROLE);
 
 app.use(cors());
 app.use(bodyParser.json());

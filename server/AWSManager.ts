@@ -19,7 +19,7 @@ class AWSManager implements AWSManagerInterface {
 
   readonly docClient: AWS.DynamoDB.DocumentClient;
 
-  readonly LambdaRole: string = 'arn:aws:iam::509208239844:role/lambda-full-api-gateway';
+  readonly LambdaRole: string;
 
   constructor(accessKeyId: string, secretAccessKey: string, lambdaRole: string) {
     this.config = new AWS.Config({
