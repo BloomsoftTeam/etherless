@@ -242,7 +242,7 @@ function deployFunction(argv) {
               const zipFile = fs.readFileSync(`${funcName}.zip`);
               const funcData = JSON.parse((fs.readFileSync(`${funcName}.json`)).toString());
               funcData.owner = wallet.address;
-              client.deployFunction(funcName, zipFile, funcData)
+              client.deployFunction(funcName, zipFile, Buffer.from(JSON.stringify(funcData)))
                 .then(() => {
                   log.info('The function was successfully uploaded to the platform and is now available to be executed.');
                 })
