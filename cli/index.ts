@@ -294,10 +294,11 @@ function runFunction(argv) {
               const wallet = client.linkWalletWithKey(key);
               log.info(`Getting wallet from credentials: ${wallet.address}`);
               client.runFunction(funcName, JSON.stringify(paramsJson)) // TODO: wallet vuoto
-                .then((result: any) => {
+                .then((jsonresult: any) => {
+                  const result = JSON.parse(jsonresult);
                   log.info(`Result: ${result.result}`);
                   log.info(`Execution time: ${result.duration} s`);
-                  log.info(`Price: ${result.price} ETH`);
+                  log.info(`Price: ${result.price} Wei`);
                 })
                 .catch(() => {
                   log.info('Cannot run function. It may not exist or may not be available.');
