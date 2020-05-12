@@ -2,6 +2,7 @@ import { Wallet } from 'ethers';
 import { EthereumManagerInterface } from './EthereumManager';
 import { TokenManagerInterface } from './common/TokenManager';
 import { ServerManagerInterface, RequestOptions } from './ServerManager';
+import ora from 'ora';
 
 export interface EtherlessClientInterface {
   linkWalletWithKey(privateKey: string): Wallet;
