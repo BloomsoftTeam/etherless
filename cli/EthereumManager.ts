@@ -33,6 +33,7 @@ export interface ContractAddressesInterface {
   deploy: string;
   run: string;
   remove: string;
+
 }
 
 export interface DeletePromiseInterface {
@@ -43,22 +44,10 @@ export interface DeletePromiseInterface {
 class EthereumManager implements EthereumManagerInterface {
   readonly ethersHelper: EthersHelper;
 
-  readonly storageContractAddress: string;
-
-  readonly deployContractAddress: string;
-
-  readonly runContractAddress: string;
-
-  readonly deleteContractAddress: string;
-
   wallet: Wallet;
 
-  constructor(ethersHelper: EthersHelper, contracts: ContractAddressesInterface) {
+  constructor(ethersHelper: EthersHelper) {
     this.ethersHelper = ethersHelper;
-    this.storageContractAddress = contracts.storage;
-    this.deployContractAddress = contracts.deploy;
-    this.runContractAddress = contracts.run;
-    this.deleteContractAddress = contracts.remove;
   }
 
   generateNewWallet(): Wallet {
@@ -85,7 +74,8 @@ class EthereumManager implements EthereumManagerInterface {
 
   getDeployFee(): Promise<number> {
     return new Promise((resolve, reject) => {
-      this.ethersHelper.loadSmartContract(this.deployContractAddress, this.wallet)
+      // TODO: non pescare da env qui
+      this.ethersHelper.loadSmartContract(process.env.DEPLOY_CONTRACT_ADDRESS, this.wallet)
         .then((deployContract) => {
           deployContract.getDeployFee()
             .then(resolve)
@@ -100,7 +90,8 @@ class EthereumManager implements EthereumManagerInterface {
         reject(new Error('[EthereumManager]\twallet is not set'));
         return;
       }
-      this.ethersHelper.loadSmartContract(this.deployContractAddress, this.wallet)
+      // TODO: non pescare da env qui
+      this.ethersHelper.loadSmartContract(process.env.DEPLOY_CONTRACT_ADDRESS, this.wallet)
         .then((deployContract) => {
           deployContract.getDeployFee()
             .then((fee) => {
@@ -123,7 +114,7 @@ class EthereumManager implements EthereumManagerInterface {
   // on: ((string, number, number, string, string) => void
   listenOperationTokenDeployEvents(signedToken: string): Promise<string> {
     return new Promise((resolve, reject) => {
-      this.ethersHelper.loadSmartContract(this.deployContractAddress, this.wallet)
+      this.ethersHelper.loadSmartContract(process.env.DEPLOY_CONTRACT_ADDRESS, this.wallet)
         .then((deployContract) => {
           deployContract.on(ReceiveDeployOperationToken,
             (aSignedToken: string, opToken: string) => {
@@ -139,7 +130,7 @@ class EthereumManager implements EthereumManagerInterface {
   // on: ((string, number, number, string, string) => void
   listenRequestUploadEvents(myOpToken: string) {
     return new Promise((resolve, reject) => {
-      this.ethersHelper.loadSmartContract(this.deployContractAddress, this.wallet)
+      this.ethersHelper.loadSmartContract(process.env.DEPLOY_CONTRACT_ADDRESS, this.wallet)
         .then((deployContract) => {
           deployContract.on(RequestUploadEvent, (opToken: string) => {
             if (myOpToken === opToken) {
@@ -153,7 +144,8 @@ class EthereumManager implements EthereumManagerInterface {
 
   getFuncPrice(funcName: string): Promise<number> {
     return new Promise((resolve, reject) => {
-      this.ethersHelper.loadSmartContract(this.runContractAddress, this.wallet)
+      // TODO: non pescare da env qui
+      this.ethersHelper.loadSmartContract(process.env.RUN_CONTRACT_ADDRESS, this.wallet)
         .then((runContract) => {
           runContract.getFuncPrice(funcName).then(resolve).catch(reject);
         }).catch(reject);
@@ -162,7 +154,7 @@ class EthereumManager implements EthereumManagerInterface {
 
   sendRunRequest(funcName: string, parameters: string): Promise<void> {
     return new Promise((resolve, reject) => {
-      this.ethersHelper.loadSmartContract(this.runContractAddress, this.wallet)
+      this.ethersHelper.loadSmartContract(process.env.RUN_CONTRACT_ADDRESS, this.wallet)
         .then((runContract) => {
           runContract.checkFuncPrice(funcName)
             .then((price) => {
@@ -183,7 +175,7 @@ class EthereumManager implements EthereumManagerInterface {
 
   listenOperationTokenRunEvent(funcName: string): Promise<string> {
     return new Promise((resolve, reject) => {
-      this.ethersHelper.loadSmartContract(this.runContractAddress, this.wallet)
+      this.ethersHelper.loadSmartContract(process.env.RUN_CONTRACT_ADDRESS, this.wallet)
         .then((runContract) => {
           runContract.on(RunRequestEvent, (opToken: string, aFuncName: string) => {
             if (funcName === aFuncName) {
@@ -198,7 +190,7 @@ class EthereumManager implements EthereumManagerInterface {
 
   listenRunEvents(myOpToken: string): Promise<string> {
     return new Promise((resolve, reject) => {
-      this.ethersHelper.loadSmartContract(this.runContractAddress, this.wallet)
+      this.ethersHelper.loadSmartContract(process.env.RUN_CONTRACT_ADDRESS, this.wallet)
         .then((runContract) => {
           runContract.on(RunResultEvent, (opToken: string, funcResult: string) => {
             if (myOpToken === opToken) {
@@ -212,7 +204,7 @@ class EthereumManager implements EthereumManagerInterface {
 
   sendDeleteRequest(funcName: string): Promise<void> {
     return new Promise((resolve, reject) => {
-      this.ethersHelper.loadSmartContract(this.deleteContractAddress, this.wallet)
+      this.ethersHelper.loadSmartContract(process.env.DELETE_CONTRACT_ADDRESS, this.wallet)
         .then((deleteContract) => {
           deleteContract.sendDeleteRequest(funcName, { gasLimit: 900000 })
             .then((event) => {
@@ -227,7 +219,7 @@ class EthereumManager implements EthereumManagerInterface {
 
   listenOperationTokenDeleteEvent(myFunc: string): Promise<DeletePromiseInterface> {
     return new Promise((resolve, reject) => {
-      this.ethersHelper.loadSmartContract(this.deleteContractAddress, this.wallet)
+      this.ethersHelper.loadSmartContract(process.env.DELETE_CONTRACT_ADDRESS, this.wallet)
         .then((deleteContract) => {
           resolve(<DeletePromiseInterface>{
             terminate: () => {
@@ -248,7 +240,7 @@ class EthereumManager implements EthereumManagerInterface {
 
   listenDeleteEvents(myOpToken: string): Promise<void> {
     return new Promise((resolve, reject) => {
-      this.ethersHelper.loadSmartContract(this.deleteContractAddress, this.wallet)
+      this.ethersHelper.loadSmartContract(process.env.DELETE_CONTRACT_ADDRESS, this.wallet)
         .then((deleteContract) => {
           const removeListeners = () => {
             deleteContract.removeAllListeners(DeleteSuccessEvent);

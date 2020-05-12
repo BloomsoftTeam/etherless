@@ -34,12 +34,7 @@ function buildClient(opts: ClientOption): EtherlessClient {
   if (opts.smart) {
     const infura = new InfuraProvider('ropsten', process.env.INFURA_PROJECT_ID);
     const ethersHelper = new EthersHelper(infura, ETHERSCAN_API_KEY);
-    ethereumManager = new EthereumManager(ethersHelper, {
-      storage: process.env.STORAGE_CONTRACT_ADDRESS,
-      deploy: process.env.DEPLOY_CONTRACT_ADDRESS,
-      run: process.env.RUN_CONTRACT_ADDRESS,
-      remove: process.env.DELETE_CONTRACT_ADDRESS,
-    });
+    ethereumManager = new EthereumManager(ethersHelper);
   }
   if (opts.server) {
     serverManager = new ServerManager(SERVER_EDGE, API_EDGE);
@@ -223,14 +218,14 @@ function initFunction() {
 
 // dipende solo da Key e Ethereum (e ethers), Server e Token
 function deployFunction(argv) {
-  const keyManager = new KeyManager();
+  let keyManager = new KeyManager();
 
   keyManager.checkCredentialsExistance()
     .then(() => {
       askPassword()
         .then((password) => {
           const client = buildClient(<ClientOption> { smart: true, server: true, token: true });
-          keyManager.setPassword(password);
+          keyManager = new KeyManager(password);
 
           const funcName = argv._[1];
           keyManager.loadCredentials()
@@ -268,14 +263,14 @@ function logout() {
 
 // dipende solo da Key e Ethereum (e ethers), Server e Token
 function runFunction(argv) {
-  const keyManager = new KeyManager();
+  let keyManager = new KeyManager();
 
   keyManager.checkCredentialsExistance()
     .then(() => {
       askPassword()
         .then((password) => {
           const client = buildClient(<ClientOption> { smart: true, server: true, token: true });
-          keyManager.setPassword(password);
+          keyManager = new KeyManager(password);
 
           const paramsArr = argv._.filter((value, index) => index > 1);
 
@@ -361,7 +356,7 @@ function searchFunction(argv) {
 }
 
 function deleteFunction(argv) {
-  const keyManager = new KeyManager();
+  let keyManager = new KeyManager();
 
   keyManager.checkCredentialsExistance()
     .then(() => {
@@ -370,7 +365,7 @@ function deleteFunction(argv) {
           const client = buildClient(<ClientOption> { smart: true, server: true });
 
           const funcName = argv._[1];
-          keyManager.setPassword(password);
+          keyManager = new KeyManager(password);
           keyManager.loadCredentials()
             .then((key) => {
               const wallet = client.linkWalletWithKey(key);
@@ -382,6 +377,7 @@ function deleteFunction(argv) {
                 })
                 .catch(() => {
                   log.info('This function may not exist or you are not allowed delete this function.');
+                  process.exit(0);
                 });
             })
             .catch((err) => {
