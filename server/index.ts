@@ -27,10 +27,13 @@ const {
   ETHERSCAN_API_KEY,
   ADMIN_WALLET_PRIVATE_KEY,
   INFURA_PROJECT_ID,
+  AWS_ID,
+  AWS_KEY,
+  AWS_LAMBDA_ROLE,
 } = process.env;
 
 const app = express();
-const aws = new AWSManager('');
+const aws = new AWSManager(AWS_ID, AWS_KEY, AWS_LAMBDA_ROLE);
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -42,15 +45,11 @@ app.use(fileUpload({
   },
 }));
 
-// const awsManager = new AWSManager('');
-// const tokenManager = new TokenManager();
 const infuraProvider = new InfuraProvider('ropsten', INFURA_PROJECT_ID);
 log.info(`[server] Infura API Key: ${INFURA_PROJECT_ID}`);
 log.info(`[server] Etherscan API Key: ${ETHERSCAN_API_KEY}`);
 const ethersHelper = new EthersHelper(infuraProvider, ETHERSCAN_API_KEY);
-// const serverHandler = new ServerHandler('', tokenManager);
 const smartHandler = new SmartHandler(ethersHelper, ADMIN_WALLET_PRIVATE_KEY);
-//              token : address
 
 interface TokenData {
   devAddress: string;
@@ -71,21 +70,42 @@ smartHandler.listenTokenRequests((reqToken: string, opToken: string, devAddress:
 smartHandler.listenRunRequest(
   (opToken: string, funcName: string, params: string) => {
     log.info('[server] Received token from blockchain to run.');
-    // const objParams = JSON.parse(params);
     setTimeout(() => {
       log.info('[server] Executing lambda.');
       aws.invokeLambda(funcName, params)
         .then((result) => {
           log.info('[server] Got result from lambda.');
-          const strResult = JSON.stringify(result);
-          // TODO fixare
-          smartHandler.sendRunResult(strResult,
-            0,
-            0,
-            '0xe710597dE7cd68A8F9938dDfe7140f3fDf39AbB0',
-            opToken)
+          const lambdaResult = JSON.parse(result.Payload).body;
+          const logResultEncoded = result.LogResult;
+          const b = Buffer.from(logResultEncoded, 'base64');
+          const logResult = b.toString();
+          const billedDuration = aws.getExecutionTimeFrom(logResult);
+          const awsTier = 0.0000002083; // for lambda function with 128 MB cpu environment
+          const executionPrice = (billedDuration / 1000) * (128 / 1024) * awsTier * 1.1;
+          const executionPriceInWei = Math.floor(executionPrice * 0.006 * 1000000000000000000);
+          // change $ -> ETH del 12 maggio 2020
+          const resultObj = {
+            result: lambdaResult,
+            duration: billedDuration,
+            price: executionPriceInWei,
+          };
+
+          aws.getFunctionData(funcName)
+            .then((dataFun) => {
+              const devFee = dataFun.funcPrice;
+              const devAddress = dataFun.funcOwner;
+
+              smartHandler.sendRunResult(JSON.stringify(resultObj),
+                executionPriceInWei,
+                devFee,
+                devAddress,
+                opToken)
+                .catch((err) => {
+                  log.error(`[server] Failed sending results ${err}`);
+                });
+            })
             .catch((err) => {
-              log.error(`[server] Failed sending results ${err}`);
+              log.error(`[server] AWS search query failed with error ${err}`);
             });
         })
         .catch((err) => {
@@ -139,7 +159,7 @@ app.post('/deploy', (req, res) => {
                 log.info('Function deployed.');
                 smartHandler.terminateDeploy(funcName,
                   tokens[proof].devAddress,
-                  funcDataObj.fee,
+                  funcDataObj.fee * 1000,
                   tokens[proof].opToken)
                   .then(() => {
                     log.info(`[server] ${funcDataObj.funcName}`);

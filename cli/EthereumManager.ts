@@ -1,6 +1,5 @@
 import { Wallet, Contract } from 'ethers';
 
-import log from './common/Logger';
 import EthersHelper from './common/EthersHelper';
 
 const RequestUploadEvent = 'requestUpload';
@@ -23,10 +22,23 @@ export interface EthereumManagerInterface {
   sendDeleteRequest(funcName: string): Promise<void>;
   listenRunEvents(myOpToken: string): Promise<string>;
   listenOperationTokenRunEvent(funcName: string): Promise<string>; // todo cambiare con un token
-  listenOperationTokenDeleteEvent(funcName: string): Promise<string>;
+  listenOperationTokenDeleteEvent(funcName: string): Promise<DeletePromiseInterface>;
   listenRequestUploadEvents(onEvent: any);
   listenDeleteEvents(myOpToken: string): Promise<void>;
   listenOperationTokenDeployEvents(signedToken: string): Promise<string>;
+}
+
+export interface ContractAddressesInterface {
+  storage: string;
+  deploy: string;
+  run: string;
+  remove: string;
+
+}
+
+export interface DeletePromiseInterface {
+  terminate: any;
+  promise: Promise<string>;
 }
 
 class EthereumManager implements EthereumManagerInterface {
@@ -82,8 +94,7 @@ class EthereumManager implements EthereumManagerInterface {
       this.ethersHelper.loadSmartContract(process.env.DEPLOY_CONTRACT_ADDRESS, this.wallet)
         .then((deployContract) => {
           deployContract.getDeployFee()
-            .then((fee) => { // watisthis da controllare
-              log.info('[EthereumManager]\treceived deploy fee');
+            .then((fee) => {
               const feeNumber = Number(fee);
               deployContract.deploy(
                 proofToken,
@@ -155,10 +166,10 @@ class EthereumManager implements EthereumManagerInterface {
                 .then(() => {
                   resolve();
                 })
-                .catch(log.error);
+                .catch(reject);
             }).catch(reject);
         })
-        .catch(log.error);
+        .catch(reject);
     });
   }
 
@@ -206,15 +217,22 @@ class EthereumManager implements EthereumManagerInterface {
     });
   }
 
-  listenOperationTokenDeleteEvent(myFunc: string): Promise<string> {
+  listenOperationTokenDeleteEvent(myFunc: string): Promise<DeletePromiseInterface> {
     return new Promise((resolve, reject) => {
       this.ethersHelper.loadSmartContract(process.env.DELETE_CONTRACT_ADDRESS, this.wallet)
         .then((deleteContract) => {
-          deleteContract.on(DeleteEventToken, (opToken: string, funcName: string) => {
-            if (myFunc === funcName) {
-              resolve(opToken);
+          resolve(<DeletePromiseInterface>{
+            terminate: () => {
               deleteContract.removeAllListeners(DeleteEventToken);
-            }
+            },
+            promise: new Promise((done) => {
+              deleteContract.on(DeleteEventToken, (opToken: string, funcName: string) => {
+                if (myFunc === funcName) {
+                  done(opToken);
+                  deleteContract.removeAllListeners(DeleteEventToken);
+                }
+              });
+            }),
           });
         }).catch(reject);
     });

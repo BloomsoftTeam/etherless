@@ -1,5 +1,5 @@
 # Etherless
-In this file there the instruction for future developers who will improve the platform.
+In this file there are the instructions for future developers who will improves the platform.
 
 ## Pre-requisites
 - ```nodejs v12.13.0``` or above installed on your computer;
@@ -7,7 +7,10 @@ In this file there the instruction for future developers who will improve the pl
 - ```aws-sdk``` installed on the directory you are working. 
 
 ## Cli Installation and usage
-Refer to the user manual for configuration and usage of ```etherless cli```.
+- open a terminal window;
+- clone the ```etherless repository```, using ```git clone https://github.com/BloomsoftTeam/etherless.git```;
+- move inside the ```etherless``` directory and, by command line, type ```npm install```;
+- differently from the user version, the cloned repository is wrote in ```TypeScript```, so, instead of typing ```etherless [command]```, you need to type ```ts-node cli/index.ts [command]``` to execute a user-like command (always from the ```etherless``` directory).
 
 ## Deploy of AWS Services
 This section refer to the deploy of ```etherless DynamoDB table```, ```API Gateway``` to handle database interaction, and ```AWS Lambda function``` creation and removal.
@@ -19,7 +22,7 @@ This section refer to the deploy of ```etherless DynamoDB table```, ```API Gatew
 - update the ```SERVER_EDGE``` in the ```.env``` file with the new prefix of ```API endpoint``` (if necessary), for example ```SERVER_EDGE=https://API_ID.execute-api.eu-west-2.amazonaws.com/dev/```.
 
 ## Deploy of AWS EC2 Istance
-Gian
+TODO
 
 ## Deploy of Smart Contracts
-Gian
+TODO

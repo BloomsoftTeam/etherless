@@ -1,7 +1,7 @@
-import * as yargs from 'yargs';
+import yargs from 'yargs';
 import dotenv from 'dotenv';
 import { InfuraProvider } from 'ethers/providers';
-import * as fs from 'fs';
+import fs from 'fs';
 import path from 'path';
 import prompt from 'prompt';
 import log from './common/Logger';
@@ -14,7 +14,6 @@ import { EtherlessClient } from './EtherlessClient';
 
 dotenv.config({ path: path.resolve(__dirname, '.env') });
 
-// const SERVER_EDGE = 'https://bd9fnvjncl.execute-api.eu-west-2.amazonaws.com/etherless_test/etherless';
 const {
   SERVER_EDGE,
   API_EDGE,
@@ -160,7 +159,6 @@ function initOrCreateWallet() {
                 const keyManager = new KeyManager(password);
                 keyManager.saveCredentials(wallet.privateKey, wallet.address)
                   .then(() => {
-                    log.info(`[cli] Mnemonic: ${wallet.mnemonic}`);
                     log.info(`[cli] Wallet address: ${wallet.address}`);
                     log.info('[cli] credentials associated with success.');
                     prompt.stop();
@@ -235,8 +233,9 @@ function deployFunction(argv) {
               const wallet = client.linkWalletWithKey(key);
               log.info(`Getting wallet from credentials: ${wallet.address}`);
               const zipFile = fs.readFileSync(`${funcName}.zip`);
-              const funcData = fs.readFileSync(`${funcName}.json`);
-              client.deployFunction(funcName, zipFile, funcData)
+              const funcData = JSON.parse((fs.readFileSync(`${funcName}.json`)).toString());
+              funcData.owner = wallet.address;
+              client.deployFunction(funcName, zipFile, Buffer.from(JSON.stringify(funcData)))
                 .then(() => {
                   log.info('The function was successfully uploaded to the platform and is now available to be executed.');
                 })
@@ -289,20 +288,22 @@ function runFunction(argv) {
             .then((key) => {
               const wallet = client.linkWalletWithKey(key);
               log.info(`Getting wallet from credentials: ${wallet.address}`);
-              client.runFunction(funcName, JSON.stringify(paramsJson))
-                .then((results) => {
-                  log.info(results);
-                  log.info('Result: 233');
-                  log.info('Execution time: 0.014s');
-                  log.info('Price: 0.001 ETH');
+              client.runFunction(funcName, JSON.stringify(paramsJson)) // TODO: wallet vuoto
+                .then((jsonresult: any) => {
+                  const result = JSON.parse(jsonresult);
+                  log.info(`Result: ${result.result}`);
+                  log.info(`Execution time: ${result.duration} s`);
+                  log.info(`Price: ${result.price} Wei`);
                 })
-                .catch(log.error);
+                .catch(() => {
+                  log.info('Cannot run function. It may not exist or may not be available.');
+                });
             })
             .catch(() => {
               log.info('Could not load your payment method because you didn\'t associate one yet.');
             });
         })
-        .catch(log.error);
+        .catch(() => {});
     })
     .catch(() => {
       log.info('To access the run service you need to associate a payment method.');
@@ -372,7 +373,7 @@ function deleteFunction(argv) {
               client.deleteFunction(funcName)
                 .then(() => {
                   // viene restituito null sia che venga eliminata che non
-                  log.info('You have successfully removed the function Fibonacci from the platform.');
+                  log.info(`You have successfully removed the function ${funcName} from the platform.`);
                 })
                 .catch(() => {
                   log.info('This function may not exist or you are not allowed delete this function.');
@@ -431,7 +432,7 @@ function helpFunction(argv) {
       }
       case 'createConfig': {
         log.info('usage: etherless createConfig');
-        log.info('Creates a JSON file in Download folder with empty parameters to configure the deploy of a function:\n funcName: the name of the function\n description: the description of the function\n timeout: the maximum execution time of the function\n wallet: the address of the developer\n fee: the amount of money earned for every successful execution\n path: the relative path in which the function will be run.');
+        log.info('Creates a JSON file in Download folder with empty parameters to configure the deploy of a function:\n funcName: the name of the function\n description: the description of the function\n timeout: the maximum execution time of the function\n owner: the address of the developer\n fee: the amount of money earned for every successful execution\n path: the relative path in which the function will be run.');
         break;
       }
       default: {

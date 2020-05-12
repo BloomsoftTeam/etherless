@@ -10,10 +10,13 @@ export interface AWSManagerInterface {
   deleteFunction(funcName: string, devAddress: string): Promise<void>;
 }
 
+export interface FunctionDataInterface {
+  funcPrice: number;
+  funcOwner: string;
+}
+
 class AWSManager implements AWSManagerInterface {
-  readonly config: AWS.Config = new AWS.Config({
-    accessKeyId: '***REMOVED***', secretAccessKey: '***REMOVED***', region: 'eu-west-2',
-  });
+  readonly config: AWS.Config;
 
   readonly router: string;
 
@@ -21,12 +24,17 @@ class AWSManager implements AWSManagerInterface {
 
   readonly docClient: AWS.DynamoDB.DocumentClient;
 
-  readonly LambdaRole: string = 'arn:aws:iam::509208239844:role/lambda-full-api-gateway';
+  readonly LambdaRole: string;
 
-  constructor(router: string) {
-    this.router = router;
+  readonly RunKeyword: string = 'Billed Duration:';
+
+  constructor(accessKeyId: string, secretAccessKey: string, lambdaRole: string) {
+    this.config = new AWS.Config({
+      accessKeyId, secretAccessKey, region: 'eu-west-2',
+    });
     this.lambda = new AWS.Lambda(this.config);
     this.docClient = new AWS.DynamoDB.DocumentClient(this.config);
+    this.LambdaRole = lambdaRole;
   }
 
   deployFunction(fileStream: ArrayBuffer, funcData: any): Promise<void> {
@@ -52,6 +60,7 @@ class AWSManager implements AWSManagerInterface {
         VpcConfig: {
         },
       };
+
       const devAddress = funcData.owner;
       const { funcName } = funcData;
       const { description } = funcData;
@@ -111,6 +120,41 @@ class AWSManager implements AWSManagerInterface {
           resolve(data);
         }
       });// TODO sistemare il tipo di ritorno
+    });
+  }
+
+  getExecutionTimeFrom(logResult: string): number {
+    const index = logResult.indexOf(this.RunKeyword);
+    const duration = parseInt(logResult.substring(index + this.RunKeyword.length), 10);
+    return duration;
+  }
+
+  getFunctionData(funcName: string): Promise<FunctionDataInterface> {
+    return new Promise((resolve, reject) => {
+      const dbQuery = {
+        TableName: 'etherless',
+        ExpressionAttributeValues: {
+          ':v1': funcName,
+        },
+        FilterExpression: 'funcName = :v1',
+        ProjectionExpression: 'devAddress, price',
+      };
+      this.docClient.scan(dbQuery, (err, data) => {
+        if (err) {
+          log.error('Unable to get item. Error JSON:', JSON.stringify(err, null, 2));
+          reject(err);
+          return;
+        }
+        if (data.Count !== 1) {
+          log.error('Why are you running?');
+          reject(err);
+          return;
+        }
+        resolve(<FunctionDataInterface> {
+          funcPrice: data.Items[0].price,
+          funcOwner: data.Items[0].devAddress,
+        });
+      });
     });
   }
 
