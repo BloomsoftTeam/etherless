@@ -1,6 +1,5 @@
 import FormData from 'form-data';
 import fetch from 'node-fetch';
-import log from './common/Logger';
 
 export interface ServerManagerInterface {
   getFunctionsWith(_opt: RequestOptions): Promise<string>;
@@ -76,7 +75,6 @@ class ServerManager {
   deploy(_byteStream: Buffer, config: Buffer, funcName: string, _token: string):
   Promise<ResponseDeployInterface> {
     return new Promise((resolve, reject) => {
-      log.info('[ServerManager] uploading file');
       const formData = new FormData();
       formData.append('funcZip', _byteStream);
       formData.append('funcConfig', config);

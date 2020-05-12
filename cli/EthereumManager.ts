@@ -1,6 +1,5 @@
 import { Wallet, Contract } from 'ethers';
 
-import log from './common/Logger';
 import EthersHelper from './common/EthersHelper';
 
 const RequestUploadEvent = 'requestUpload';
@@ -100,8 +99,7 @@ class EthereumManager implements EthereumManagerInterface {
       this.ethersHelper.loadSmartContract(this.deployContractAddress, this.wallet)
         .then((deployContract) => {
           deployContract.getDeployFee()
-            .then((fee) => { // watisthis da controllare
-              log.info('[EthereumManager]\treceived deploy fee');
+            .then((fee) => {
               const feeNumber = Number(fee);
               deployContract.deploy(
                 proofToken,
@@ -172,10 +170,10 @@ class EthereumManager implements EthereumManagerInterface {
                 .then(() => {
                   resolve();
                 })
-                .catch(log.error);
+                .catch(reject);
             }).catch(reject);
         })
-        .catch(log.error);
+        .catch(reject);
     });
   }
 

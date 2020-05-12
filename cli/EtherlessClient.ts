@@ -1,5 +1,5 @@
 import { Wallet } from 'ethers';
-import log from './common/Logger';
+import ora from 'ora';
 import { EthereumManagerInterface } from './EthereumManager';
 import { TokenManagerInterface } from './common/TokenManager';
 import { ServerManagerInterface, RequestOptions } from './ServerManager';
@@ -45,22 +45,29 @@ class EtherlessClient implements EtherlessClientInterface {
 
   deployFunction(funcName: string, file: Buffer, config: Buffer): Promise<void> {
     return new Promise((resolve, reject) => {
+      const spinner = ora('Starting deploy.').start();
       this.tokenManager.newToken().then((token) => {
-        log.info('[EtherlessClient]\tgenerated token');
+        // log.info('[EtherlessClient]\tgenerated token');
+        spinner.text = 'generated token';
         this.ethereumManager.deploy(token.proof, funcName)
           .then(() => {
-            log.info('[EtherlessClient]\twaiting operation token');
+            // log.info('[EtherlessClient]\twaiting operation token');
+            spinner.text = 'waiting operation token';
             this.ethereumManager.listenOperationTokenDeployEvents(token.proof)
               .then((opToken) => {
-                log.info('[EtherlessClient]\treceived operation token, waiting server response');
+                // log.info('[EtherlessClient]\treceived operation token, waiting server response');
+                spinner.text = 'received operation token, waiting server response';
                 this.ethereumManager.listenRequestUploadEvents(opToken)
                   .then(() => {
-                    log.info('[EtherlessClient]\tuploading function');
+                    // log.info('[EtherlessClient]\tuploading function');
+                    spinner.text = 'uploading function';
                     this.serverManager.deploy(file, config, funcName, token.token)
                       .then((result) => {
                         if (result.ok) {
+                          spinner.succeed('deploy completed');
                           resolve();
                         } else {
+                          spinner.fail('deploy failed');
                           reject(new Error(`[EtherlessClient]\tdeploy failed: ${result.error}`));
                         }
                       }).catch(reject);
@@ -81,30 +88,46 @@ class EtherlessClient implements EtherlessClientInterface {
 
   runFunction(funcName: string, paramaters: string): Promise<string> {
     return new Promise((resolve, reject) => {
+      const spinner = ora('Starting run.').start();
       this.ethereumManager.sendRunRequest(funcName, paramaters)
         .then(() => {
-          log.info('[EtherlessClient]\tRequest send.');
+          spinner.text = 'Run requeste sent.';
+          // log.info('[EtherlessClient]\tRequest send.');
           this.ethereumManager.listenOperationTokenRunEvent(funcName)
             .then((opToken) => {
-              log.info('[EtherlessClient]\tReceived operation token.');
-              log.info(`[EtherlessClient]\t${opToken}`);
+              // log.info('[EtherlessClient]\tReceived operation token.');
+              spinner.text = 'Received operation token';
               this.ethereumManager.listenRunEvents(opToken)
-                .then(resolve)
-                .catch(reject);
+                .then(() => {
+                  spinner.succeed('Run completed');
+                  resolve();
+                })
+                .catch(() => {
+                  spinner.fail('Run failed');
+                  reject();
+                });
             })
-            .catch(reject);
+            .catch(() => {
+              spinner.fail('Run failed');
+              reject();
+            });
         })
-        .catch(reject);
+        .catch(() => {
+          spinner.fail('Run failed');
+          reject();
+        });
     });
   }
 
   deleteFunction(funcName: string): Promise<void> {
     return new Promise((resolve, reject) => {
+      const spinner = ora('Starting delete.').start();
       this.ethereumManager.sendDeleteRequest(funcName)
         .then(() => {
           // log.info('[EtherlessClient]\trichiesta inviata');
         })
         .catch((err) => {
+          spinner.fail('Failed delete.');
           this.ethereumManager.terminateListenDeleteToken()
             .then(() => {
               reject(err);
@@ -113,10 +136,17 @@ class EtherlessClient implements EtherlessClientInterface {
         });
       this.ethereumManager.listenOperationTokenDeleteEvent(funcName)
         .then((opToken) => {
-          log.info('[EtherlessClient]\tReceived token.');
+          // log.info('[EtherlessClient]\tReceived token.');
+          spinner.text = 'Received opeartion token.';
           this.ethereumManager.listenDeleteEvents(opToken)
-            .then(resolve)
-            .catch(reject);
+            .then(() => {
+              spinner.succeed('Delete succeed.');
+              resolve();
+            })
+            .catch(() => {
+              spinner.fail('Delete failed');
+              reject();
+            });
         })
         .catch(reject);
     });

@@ -1,7 +1,7 @@
-import * as yargs from 'yargs';
+import yargs from 'yargs';
 import dotenv from 'dotenv';
 import { InfuraProvider } from 'ethers/providers';
-import * as fs from 'fs';
+import fs from 'fs';
 import path from 'path';
 import prompt from 'prompt';
 import log from './common/Logger';
@@ -301,13 +301,15 @@ function runFunction(argv) {
                   log.info(`Execution time: ${0.1} s`);
                   log.info(`Price: ${0.1} ETH`);
                 })
-                .catch(log.error);
+                .catch(() => {
+                  log.info('Cannot run function. It may not exist or may not be available.');
+                });
             })
             .catch(() => {
               log.info('Could not load your payment method because you didn\'t associate one yet.');
             });
         })
-        .catch(log.error);
+        .catch(() => {});
     })
     .catch(() => {
       log.info('To access the run service you need to associate a payment method.');
