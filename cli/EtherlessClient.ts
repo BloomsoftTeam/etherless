@@ -97,23 +97,23 @@ class EtherlessClient implements EtherlessClientInterface {
               // log.info('[EtherlessClient]\tReceived operation token.');
               spinner.text = 'Received operation token';
               this.ethereumManager.listenRunEvents(opToken)
-                .then(() => {
+                .then((res) => {
                   spinner.succeed('Run completed');
-                  resolve();
+                  resolve(res);
                 })
-                .catch(() => {
+                .catch((err) => {
                   spinner.fail('Run failed');
-                  reject();
+                  reject(err);
                 });
             })
-            .catch(() => {
+            .catch((err) => {
               spinner.fail('Run failed');
-              reject();
+              reject(err);
             });
         })
-        .catch(() => {
+        .catch((err) => {
           spinner.fail('Run failed');
-          reject();
+          reject(err);
         });
     });
   }
@@ -142,9 +142,9 @@ class EtherlessClient implements EtherlessClientInterface {
               spinner.succeed('Delete succeed.');
               resolve();
             })
-            .catch(() => {
+            .catch((err) => {
               spinner.fail('Delete failed');
-              reject();
+              reject(err);
             });
         })
         .catch(reject);
