@@ -76,7 +76,6 @@ class ServerManager {
   deploy(_byteStream: Buffer, config: Buffer, funcName: string, _token: string):
   Promise<ResponseDeployInterface> {
     return new Promise((resolve, reject) => {
-      log.info('[ServerManager] uploading file');
       const formData = new FormData();
       formData.append('funcZip', _byteStream);
       formData.append('funcConfig', config);
