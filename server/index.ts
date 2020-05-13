@@ -80,12 +80,12 @@ smartHandler.listenRunRequest(
             duration: billedDuration,
             price: executionPriceInWei,
           };
-        
+
           aws.getFunctionData(funcName)
             .then((dataFun) => {
               const devFee = dataFun.funcPrice;
               const devAddress = dataFun.funcOwner;
-              if (billedDuration === aws.getTimemout(funcName)){
+              if (billedDuration === aws.getTimemout(funcName)) {
                 aws.updateRecord(funcName, devAddress)
                   .then(() => {
                     log.error('[server] Function Timeout overflow, set function to hidden');
@@ -95,7 +95,7 @@ smartHandler.listenRunRequest(
                       });
                   }).catch(() => {
                     log.error('[server] Can\'t update DB record');
-                  })
+                  });
               }
               smartHandler.sendRunResult(JSON.stringify(resultObj),
                 executionPriceInWei,
@@ -159,7 +159,11 @@ app.post('/deploy', (req, res) => {
               .then(() => {
                 log.info('Function deployed.');
                 const awsTier = 0.0000002083; // for lambda function with 128 MB cpu environment
-                const price = (funcDataObj.timeout / 1000) * (128 / 1024) * awsTier * 1.1 + funcDataObj.fee;
+                const price = (funcDataObj.timeout / 1000)
+                  * (128 / 1024)
+                  * awsTier
+                  * 1.1
+                  + funcDataObj.fee;
                 const priceInWei = Math.floor(price * 0.006 * 1000000000000000000);
                 smartHandler.terminateDeploy(funcName,
                   tokens[proof].devAddress,

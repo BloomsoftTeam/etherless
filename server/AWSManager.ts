@@ -40,44 +40,44 @@ class AWSManager implements AWSManagerInterface {
   }
 
   getTimemout(funcName: string): number {
-    var params = {
-      FunctionName: funcName, 
-     };
-     let timeoutResult = -1;
-     this.lambda.getFunctionConfiguration(params, function(err, data) {
-       if (err) {
-         log.error('Funzione inesistente');
-       } else {
+    const params = {
+      FunctionName: funcName,
+    };
+    let timeoutResult = -1;
+    this.lambda.getFunctionConfiguration(params, (err, data) => {
+      if (err) {
+        log.error('Funzione inesistente');
+      } else {
         timeoutResult = data.Timeout;
-       } 
-     });
-     return timeoutResult;
+      }
+    });
+    return timeoutResult;
   }
 
-  updateRecord(funcName: string, devAddress: string): Promise<void>{
+  updateRecord(funcName: string, devAddress: string): Promise<void> {
     return new Promise((resolve, reject) => {
-      var params = {
+      const params = {
         TableName: 'etherless',
-        Key:{
-          'devAddress': devAddress,
-          'funcName': funcName
+        Key: {
+          devAddress,
+          funcName,
         },
         UpdateExpression: 'set info.unavailable = :u',
-        ExpressionAttributeValues:{
-          ':u':'true'
+        ExpressionAttributeValues: {
+          ':u': 'true',
         },
         // ReturnValues: 'UPDATED_NEW'
       };
-      
-      log.info('Updating the item..."';
-      this.docClient.update(params, function(err, data) {
+
+      log.info('Updating the item...');
+      this.docClient.update(params, (err) => {
         if (err) {
           reject(new Error('Unable to update item.'));
         } else {
           resolve();
         }
       });
-    }); 
+    });
   }
 
   getFunctionData(funcName: string): Promise<FunctionDataInterface> {
@@ -109,74 +109,81 @@ class AWSManager implements AWSManagerInterface {
   }
 
   deployFunction(fileStream: ArrayBuffer, funcData: any): Promise<void> {
+    const internalDeployFunction = (file: ArrayBuffer,
+      funData: any): Promise<void> => new Promise((resolveInternal,
+      rejectInternal) => {
+      const { lambda } = this;
+
+      // Handler is of the form of the name of your source file
+      // and then name of your function handler
+      const lambdaParams = {
+        Code: {
+          ZipFile: file,
+        },
+        Description: funData.description,
+        FunctionName: funData.funcName,
+        Handler: `${funData.indexPath}.handler`,
+        MemorySize: 128,
+        Publish: true,
+        Role: this.LambdaRole,
+        Runtime: 'nodejs12.x',
+        Timeout: funData.timeout,
+        VpcConfig: {
+        },
+      };
+
+      const devAddress = funData.owner;
+      const { funcName } = funData;
+      const { description } = funData;
+      const { params } = funData;
+      const awsTier = 0.0000002083; // for lambda function with 128 MB cpu environment
+      const executionPrice = (funData.timeout / 1000)
+          * (128 / 1024)
+          * awsTier
+          * 1.1
+          + funData.fee;
+      const price = Math.floor(executionPrice * 0.006 * 1000000000000000000);
+      const { usage } = funData;
+
+      lambda.createFunction(lambdaParams, (err, data) => {
+        if (err) {
+          log.error(err);
+          rejectInternal(err);
+        }
+        log.info(`[AWSManager]\t${data}`);
+
+        const table = 'etherless';
+        const unavailable = 'false';
+
+        const itemValue = {
+          TableName: table,
+          Item: {
+            devAddress,
+            funcName,
+            description,
+            params,
+            price,
+            unavailable,
+            usage,
+          },
+        };
+
+        log.info('[AWSManager] Adding a new item...');
+        this.docClient.put(itemValue, (docErr, docData) => {
+          if (docErr) {
+            rejectInternal(docErr);
+          } else {
+            log.info(`[AWSManager]\t${docData}`);
+            resolveInternal();
+          }
+        });
+      });
+    });
+
     return new Promise((resolve, reject) => {
-      const internalDeployFunction = (fileStream: ArrayBuffer, funcData: any): Promise<void> => {
-        return new Promise((resolveInternal, rejectInternal) => {
-          const { lambda } = this;
-
-          const lambdaParams = {
-            Code: {
-              ZipFile: fileStream,
-            },
-            Description: funcData.description,
-            FunctionName: funcData.funcName,
-            Handler: `${funcData.indexPath}.handler`, // is of the form of the name of your source file and then name of your function handler
-            MemorySize: 128,
-            Publish: true,
-            Role: this.LambdaRole,
-            Runtime: 'nodejs12.x',
-            Timeout: funcData.timeout,
-            VpcConfig: {
-            },
-          };
-
-          const devAddress = funcData.owner;
-          const { funcName } = funcData;
-          const { description } = funcData;
-          const { params } = funcData;
-          const awsTier = 0.0000002083; // for lambda function with 128 MB cpu environment
-          const executionPrice = (funcData.timeout / 1000) * (128 / 1024) * awsTier * 1.1 + funcData.fee;
-          const price = Math.floor(executionPrice * 0.006 * 1000000000000000000);
-          const { usage } = funcData;
-
-          lambda.createFunction(lambdaParams, (err, data) => {
-            if (err) {
-              log.error(err);
-              rejectInternal(err);
-            }
-            log.info(`[AWSManager]\t${data}`);
-
-            const table = 'etherless';
-            const unavailable = 'false';
-
-            const itemValue = {
-              TableName: table,
-              Item: {
-                devAddress,
-                funcName,
-                description,
-                params,
-                price,
-                unavailable,
-                usage,
-              },
-            };
-
-            log.info('[AWSManager] Adding a new item...');
-            this.docClient.put(itemValue, (docErr, docData) => {
-              if (docErr) {
-                rejectInternal(docErr);
-              } else {
-                log.info(`[AWSManager]\t${docData}`);
-                resolveInternal();
-              }
-            });
-          });
-        }); 
-      } 
       this.getFunctionData(funcData.funcName)
         .then((dataFun) => {
-          if(funcData.owner !== dataFun.funcOwner) {
+          if (funcData.owner !== dataFun.funcOwner) {
             reject(new Error('You are not allowed to overwrite this function (you are not the owner)'));
           } else {
             this.deleteFunction(funcData.funcName, funcData.owner)
@@ -186,11 +193,11 @@ class AWSManager implements AWSManagerInterface {
                   .catch(reject);
               }).catch((reject));
           }
-        }).catch(() =>{ // Quindi non esiste la funzione 
+        }).catch(() => { // Quindi non esiste la funzione
           internalDeployFunction(fileStream, funcData)
             .then(resolve)
             .catch(reject);
-        }); 
+        });
     });
   }
 

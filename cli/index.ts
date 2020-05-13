@@ -8,7 +8,7 @@ import log from './common/Logger';
 import EthersHelper from './common/EthersHelper';
 import TokenManager from './common/TokenManager';
 import { ServerManager } from './ServerManager';
-import { EthereumManager } from './EthereumManager';
+import { EthereumManager, ContractAddressesInterface } from './EthereumManager';
 import KeyManager from './KeyManager';
 import { EtherlessClient } from './EtherlessClient';
 
@@ -18,6 +18,10 @@ const {
   SERVER_EDGE,
   API_EDGE,
   ETHERSCAN_API_KEY,
+  STORAGE_CONTRACT_ADDRESS,
+  DEPLOY_CONTRACT_ADDRESS,
+  RUN_CONTRACT_ADDRESS,
+  DELETE_CONTRACT_ADDRESS,
 } = process.env;
 
 interface ClientOption {
@@ -30,10 +34,16 @@ function buildClient(opts: ClientOption): EtherlessClient {
   let ethereumManager: EthereumManager;
   let serverManager: ServerManager;
   let tokenManager: TokenManager;
+  const contracts: ContractAddressesInterface = {
+    deploy: DEPLOY_CONTRACT_ADDRESS,
+    run: RUN_CONTRACT_ADDRESS,
+    remove: DELETE_CONTRACT_ADDRESS,
+    storage: STORAGE_CONTRACT_ADDRESS,
+  };
   if (opts.smart) {
     const infura = new InfuraProvider('ropsten', process.env.INFURA_PROJECT_ID);
     const ethersHelper = new EthersHelper(infura, ETHERSCAN_API_KEY);
-    ethereumManager = new EthereumManager(ethersHelper);
+    ethereumManager = new EthereumManager(ethersHelper, contracts);
   }
   if (opts.server) {
     serverManager = new ServerManager(SERVER_EDGE, API_EDGE);
