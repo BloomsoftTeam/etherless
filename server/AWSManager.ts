@@ -133,8 +133,7 @@ class AWSManager implements AWSManagerInterface {
       this.getFunctionData(funcData.funcName)
         .then((dataFun) => {
           if(funcData.owner !== dataFun.funcOwner) {
-            log.error('You are not allowed to overwrite this function (you are not the owner)')
-            reject;
+            reject(new Error('You are not allowed to overwrite this function (you are not the owner)'));
           } else {
             this.deleteFunction(funcData.funcName, funcData.owner)
               .then(() => {
