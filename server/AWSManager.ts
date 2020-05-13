@@ -68,65 +68,67 @@ class AWSManager implements AWSManagerInterface {
   deployFunction(fileStream: ArrayBuffer, funcData: any): Promise<void> {
     return new Promise((resolve, reject) => {
       const internalDeployFunction = (fileStream: ArrayBuffer, funcData: any): Promise<void> =>{
-        const { lambda } = this;
+        return new Promise((resolveInternal, rejectInternal) => {
+          const { lambda } = this;
 
-        const lambdaParams = {
-          Code: {
-            ZipFile: fileStream,
-          },
-          Description: funcData.description,
-          FunctionName: funcData.funcName,
-          Handler: `${funcData.indexPath}.handler`, // is of the form of the name of your source file and then name of your function handler
-          MemorySize: 128,
-          Publish: true,
-          Role: this.LambdaRole,
-          Runtime: 'nodejs12.x',
-          Timeout: funcData.timeout,
-          VpcConfig: {
-          },
-        };
-
-        const devAddress = funcData.owner;
-        const { funcName } = funcData;
-        const { description } = funcData;
-        const { params } = funcData;
-        // TODO calcolare in modo giusto il prezzo
-        const price = funcData.fee * 5;
-        const { usage } = funcData;
-
-        lambda.createFunction(lambdaParams, (err, data) => {
-          if (err) {
-            log.error(err);
-            reject(err);
-          }
-          log.info(`[AWSManager]\t${data}`);
-
-          const table = 'etherless';
-          const unavailable = 'false';
-
-          const itemValue = {
-            TableName: table,
-            Item: {
-              devAddress,
-              funcName,
-              description,
-              params,
-              price,
-              unavailable,
-              usage,
+          const lambdaParams = {
+            Code: {
+              ZipFile: fileStream,
+            },
+            Description: funcData.description,
+            FunctionName: funcData.funcName,
+            Handler: `${funcData.indexPath}.handler`, // is of the form of the name of your source file and then name of your function handler
+            MemorySize: 128,
+            Publish: true,
+            Role: this.LambdaRole,
+            Runtime: 'nodejs12.x',
+            Timeout: funcData.timeout,
+            VpcConfig: {
             },
           };
 
-          log.info('[AWSManager] Adding a new item...');
-          this.docClient.put(itemValue, (docErr, docData) => {
-            if (docErr) {
-              reject(docErr);
-            } else {
-              log.info(`[AWSManager]\t${docData}`);
-              resolve();
+          const devAddress = funcData.owner;
+          const { funcName } = funcData;
+          const { description } = funcData;
+          const { params } = funcData;
+          // TODO calcolare in modo giusto il prezzo
+          const price = funcData.fee * 5;
+          const { usage } = funcData;
+
+          lambda.createFunction(lambdaParams, (err, data) => {
+            if (err) {
+              log.error(err);
+              rejectInternal(err);
             }
+            log.info(`[AWSManager]\t${data}`);
+
+            const table = 'etherless';
+            const unavailable = 'false';
+
+            const itemValue = {
+              TableName: table,
+              Item: {
+                devAddress,
+                funcName,
+                description,
+                params,
+                price,
+                unavailable,
+                usage,
+              },
+            };
+
+            log.info('[AWSManager] Adding a new item...');
+            this.docClient.put(itemValue, (docErr, docData) => {
+              if (docErr) {
+                rejectInternal(docErr);
+              } else {
+                log.info(`[AWSManager]\t${docData}`);
+                resolveInternal();
+              }
+            });
           });
-        });
+        }); 
       } 
       this.getFunctionData(funcData.funcName)
         .then((dataFun) => {
