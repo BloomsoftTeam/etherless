@@ -8,6 +8,8 @@ export interface AWSManagerInterface {
   deployFunction(stream: ArrayBuffer, funcName: string): Promise<void>;
   invokeLambda(funcName: string, payLoad: string): Promise<any>;
   deleteFunction(funcName: string, devAddress: string): Promise<void>;
+  getTimeout(funcName: string): number;
+  updateRecord(funcName: string, devAddress: string): Promise<void>;
 }
 
 export interface FunctionDataInterface {
@@ -35,6 +37,47 @@ class AWSManager implements AWSManagerInterface {
     this.lambda = new AWS.Lambda(this.config);
     this.docClient = new AWS.DynamoDB.DocumentClient(this.config);
     this.LambdaRole = lambdaRole;
+  }
+
+  getTimemout(funcName: string): number {
+    var params = {
+      FunctionName: funcName, 
+     };
+     let timeoutResult = -1;
+     this.lambda.getFunctionConfiguration(params, function(err, data) {
+       if (err) {
+         log.error('Funzione inesistente');
+       } else {
+        timeoutResult = data.Timeout;
+       } 
+     });
+     return timeoutResult;
+  }
+
+  updateRecord(funcName: string, devAddress: string): Promise<void>{
+    return new Promise((resolve, reject) => {
+      var params = {
+        TableName: 'etherless',
+        Key:{
+          'devAddress': devAddress, //
+          'funcName': funcName //
+        },
+        UpdateExpression: 'set info.unavailable = :u',
+        ExpressionAttributeValues:{
+          ':u':'true'
+        },
+        // ReturnValues: 'UPDATED_NEW'
+      };
+      
+      log.info('Updating the item..."';
+      this.docClient.update(params, function(err, data) {
+        if (err) {
+          reject(new Error('Unable to update item.'));
+        } else {
+          resolve();
+        }
+      });
+    }); 
   }
 
   getFunctionData(funcName: string): Promise<FunctionDataInterface> {

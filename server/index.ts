@@ -89,12 +89,29 @@ smartHandler.listenRunRequest(
             duration: billedDuration,
             price: executionPriceInWei,
           };
-
+        
           aws.getFunctionData(funcName)
             .then((dataFun) => {
               const devFee = dataFun.funcPrice;
               const devAddress = dataFun.funcOwner;
-
+              if (billedDuration === aws.getTimemout(funcName)){
+                aws.updateRecord(funcName, devAddress)
+                  .then(() => {
+                    log.error('[server] Function Timeout overflow, set function to hidden');
+                    // settare a hidden anche nel mapping di ethereum
+                    // controllare per il rimborso dei soldi, vedere se c'è l'evento 'sendRunFailure' (o simili) in modo da non dover usare sendRunResult per l'errore
+                    smartHandler.sendRunResult('Error during function execution.',
+                    executionPriceInWei,
+                    devFee,
+                    devAddress,
+                    opToken)
+                    .catch((err) => {
+                      log.error(`[server] Failed sending results ${err}`);
+                    });
+                  }).catch(() => {
+                    log.error('[server] Can\'t update DB record');
+                  })
+              }
               smartHandler.sendRunResult(JSON.stringify(resultObj),
                 executionPriceInWei,
                 devFee,
