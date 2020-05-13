@@ -1,6 +1,6 @@
 import yargs from 'yargs';
 import dotenv from 'dotenv';
-import { InfuraProvider } from 'ethers/providers';
+import { JsonRpcProvider } from 'ethers/providers';
 import fs from 'fs';
 import path from 'path';
 import prompt from 'prompt';
@@ -32,8 +32,8 @@ function buildClient(opts: ClientOption): EtherlessClient {
   let serverManager: ServerManager;
   let tokenManager: TokenManager;
   if (opts.smart) {
-    const infura = new InfuraProvider('ropsten', process.env.INFURA_PROJECT_ID);
-    const ethersHelper = new EthersHelper(infura, ETHERSCAN_API_KEY);
+    let httpProvider = new JsonRpcProvider();
+    const ethersHelper = new EthersHelper(httpProvider);
     ethereumManager = new EthereumManager(ethersHelper);
   }
   if (opts.server) {

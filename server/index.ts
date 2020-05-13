@@ -1,7 +1,7 @@
 // import { LambdaManager, LambdaManagerInterface } from './LambdaManager';
 
 
-import { InfuraProvider } from 'ethers/providers';
+import { JsonRpcProvider } from 'ethers/providers';
 
 // import ServerHandler from './ServerHandler';
 
@@ -45,10 +45,10 @@ app.use(fileUpload({
   },
 }));
 
-const infuraProvider = new InfuraProvider('ropsten', INFURA_PROJECT_ID);
+const httpProvider = new JsonRpcProvider();
 log.info(`[server] Infura API Key: ${INFURA_PROJECT_ID}`);
 log.info(`[server] Etherscan API Key: ${ETHERSCAN_API_KEY}`);
-const ethersHelper = new EthersHelper(infuraProvider, ETHERSCAN_API_KEY);
+const ethersHelper = new EthersHelper(httpProvider);
 const smartHandler = new SmartHandler(ethersHelper, ADMIN_WALLET_PRIVATE_KEY);
 
 interface TokenData {

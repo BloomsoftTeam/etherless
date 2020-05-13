@@ -1,19 +1,16 @@
 import { ethers } from 'ethers';
 import { Contract } from 'ethers/contract';
 import { Wallet } from 'ethers/wallet';
-import { InfuraProvider } from 'ethers/providers';
-import bent from 'bent';
-
-const etherscanUrl = 'https://api-ropsten.etherscan.io/api';
+import { JsonRpcProvider } from 'ethers/providers';
+import { setupLoader, TruffleLoader } from '@openzeppelin/contract-loader';
 
 class EthersHelper {
-  readonly provider: InfuraProvider;
+  readonly provider: JsonRpcProvider;
+  readonly loader: TruffleLoader;
 
-  readonly apiKey: string;
-
-  constructor(infuraProvider: InfuraProvider, apiKey: string) {
-    this.provider = infuraProvider;
-    this.apiKey = apiKey;
+  constructor(rpcProvider: JsonRpcProvider) {
+    this.provider = rpcProvider;
+    this.loader = setupLoader({ provider: rpcProvider }).truffle;
   }
 
   newWallet(): Wallet {
@@ -27,34 +24,11 @@ class EthersHelper {
     return new Wallet(privateKey, this.provider);
   }
 
-  loadSmartContract(contractAddress: string, wallet?: Wallet): Promise<Contract> {
+  loadSmartContract(contractAddress: string, contractName: string, wallet?: Wallet): Promise<Contract> {
     return new Promise((resolve, reject) => {
-      this.getContractInterfaceByAddress(contractAddress)
-        .then((contractInterface) => {
-          const contract = new Contract(contractAddress, contractInterface, this.provider);
-          if (wallet) {
-            resolve(contract.connect(wallet));
-          } else {
-            resolve(contract);
-          }
-        })
-        .catch(reject);
-    });
-  }
-
-  getContractInterfaceByAddress(contractAddress: string): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const query = `?module=contract&action=getabi&address=${contractAddress}&apikey=${this.apiKey}`;
-      const getJSON = bent('json');
-      getJSON(etherscanUrl + query)
-        .then((response) => {
-          if (response.status === '0') {
-            reject(response);
-          } else {
-            resolve(response.result);
-          }
-        })
-        .catch(reject);
+      const contract = this.loader.fromArtifact(contractName, contractAddress);
+      if (contract) resolve(contract);
+      else reject(contract);
     });
   }
 }
