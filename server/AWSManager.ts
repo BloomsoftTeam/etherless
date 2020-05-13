@@ -8,7 +8,7 @@ export interface AWSManagerInterface {
   deployFunction(stream: ArrayBuffer, funcName: string): Promise<void>;
   invokeLambda(funcName: string, payLoad: string): Promise<any>;
   deleteFunction(funcName: string, devAddress: string): Promise<void>;
-  getTimeout(funcName: string): number;
+  getExecutionTimeFrom(funcName: string): number;
   updateRecord(funcName: string, devAddress: string): Promise<void>;
 }
 
