@@ -2018,5 +2018,13 @@
       "runs": 200
     },
     "evmVersion": "petersburg"
+  },
+  "networks": {
+    "1589367523802": {
+      "links": {},
+      "events": {},
+      "address": "0x59d3631c86BbE35EF041872d502F218A39FBa150",
+      "updated_at": 1589367626445
+    }
   }
 }
