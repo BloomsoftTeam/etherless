@@ -557,15 +557,15 @@ const verifyArguments = (argv) => {
 };
 
 yargs
-  .command('init', 'init?!', () => {}, initFunction)
-  .command('logout', 'init?!', () => {}, logout)
-  .command('run', 'init?!', () => {}, runFunction)
-  .command('list', 'init?!', listOptions, listFunction)
-  .command('deploy', 'init?!', () => {}, deployFunction)
-  .command('delete', 'init?!', () => {}, deleteFunction)
-  .command('search', 'init?!', () => {}, searchFunction)
-  .command('get_help', 'init?!', helpOptions, helpFunction)
-  .command('createConfig', 'init?!', () => {}, createConfigFunction)
+  .command('init', 'Allows the user to associate a payment method to the platform by eithercreating a new ETH wallet or associating an existing one. The wallet will let the user access all paid services.', () => {}, initFunction)
+  .command('logout', 'Allows the user to remove the previously associated payment method.', () => {}, logout)
+  .command('run', 'Allows the user to execute a function available on the platform specifying all needed parameters.', () => {}, runFunction)
+  .command('list', 'Lists all available functions available in the platform with their respective description, usage and price.', listOptions, listFunction)
+  .command('deploy', 'Allows the developer to deploy a function to the platform with its source code and a configuration file for the meta data.', () => {}, deployFunction)
+  .command('delete', 'Allows the developer to delete a function available on the platform.', () => {}, deleteFunction)
+  .command('search', 'Lists all available functions on the platform matching the keyword specified with the description of the functions.', () => {}, searchFunction)
+  .command('get_help', 'View the guide to Etherless', helpOptions, helpFunction)
+  .command('createConfig', 'Creates a JSON file in Download folder with empty parameters to configure the deploy of a function', () => {}, createConfigFunction)
   .help('why')
   .check(verifyArguments)
   .parse();

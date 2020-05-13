@@ -147,7 +147,7 @@ app.post('/deploy', (req, res) => {
     const zipStream = req.files.funcZip.data;
     const configStream = req.files.funcConfig.data;
     const { token, funcName } = req.body;
-
+    // controllare se esiste già, e chi è l'owner
     const tokenManager = new TokenManager();
     tokenManager.computeProof(token)
       .then((proof) => {
