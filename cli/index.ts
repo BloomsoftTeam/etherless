@@ -292,7 +292,7 @@ function runFunction(argv) {
                 .then((jsonresult: any) => {
                   const result = JSON.parse(jsonresult);
                   log.info(`Result: ${result.result}`);
-                  log.info(`Execution time: ${result.duration} s`);
+                  log.info(`Execution time: ${result.duration} ms`);
                   log.info(`Price: ${result.price} Wei`);
                 })
                 .catch(() => {
