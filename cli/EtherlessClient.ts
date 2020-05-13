@@ -139,9 +139,9 @@ class EtherlessClient implements EtherlessClientInterface {
           // log.info('[EtherlessClient]\tReceived token.');
           spinner.text = 'Received opeartion token.';
           this.ethereumManager.listenDeleteEvents(opToken)
-            .then(() => {
+            .then((res) => {
               spinner.succeed('Delete succeed.');
-              resolve();
+              resolve(res);
             })
             .catch((err) => {
               spinner.fail('Delete failed');
