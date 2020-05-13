@@ -336,8 +336,8 @@ function listFunction(argv) {
     client.listFunctionWith(opt)
       .then((res: any) => {
         printResult(res);
-      }).catch((err) => {
-        log.error(err);
+      }).catch(() => {
+        log.error('Can\'t retrieve data from database. Check your connection and try again (if problem doesn\'t solve, please contact us).');
       });
   }
 }
@@ -347,11 +347,11 @@ function searchFunction(argv) {
 
   const keywords = argv._[1];
 
-  client.searchFunction(keywords) // devo utilizzare unavailable = true (list)
+  client.searchFunction(keywords)
     .then((res: any) => {
       printResult(res);
-    }).catch((err) => {
-      log.error(err);
+    }).catch(() => {
+      log.error('Can\'t retrieve data from database. Check your connection and try again (if problem doesn\'t solve, please contact us).');
     });
 }
 
