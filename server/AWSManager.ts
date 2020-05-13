@@ -59,8 +59,8 @@ class AWSManager implements AWSManagerInterface {
       var params = {
         TableName: 'etherless',
         Key:{
-          'devAddress': devAddress, //
-          'funcName': funcName //
+          'devAddress': devAddress,
+          'funcName': funcName
         },
         UpdateExpression: 'set info.unavailable = :u',
         ExpressionAttributeValues:{
@@ -110,7 +110,7 @@ class AWSManager implements AWSManagerInterface {
 
   deployFunction(fileStream: ArrayBuffer, funcData: any): Promise<void> {
     return new Promise((resolve, reject) => {
-      const internalDeployFunction = (fileStream: ArrayBuffer, funcData: any): Promise<void> =>{
+      const internalDeployFunction = (fileStream: ArrayBuffer, funcData: any): Promise<void> => {
         return new Promise((resolveInternal, rejectInternal) => {
           const { lambda } = this;
 
@@ -134,8 +134,9 @@ class AWSManager implements AWSManagerInterface {
           const { funcName } = funcData;
           const { description } = funcData;
           const { params } = funcData;
-          // TODO calcolare in modo giusto il prezzo
-          const price = funcData.fee * 5;
+          const awsTier = 0.0000002083; // for lambda function with 128 MB cpu environment
+          const executionPrice = (funcData.timeout / 1000) * (128 / 1024) * awsTier * 1.1 + funcData.fee;
+          const price = Math.floor(executionPrice * 0.006 * 1000000000000000000);
           const { usage } = funcData;
 
           lambda.createFunction(lambdaParams, (err, data) => {
@@ -219,7 +220,6 @@ class AWSManager implements AWSManagerInterface {
 
 
   deleteFunction(funcName: string, devAddress: string): Promise<void> {
-    // devAddress ottenuto dall'evento smart di deleteContract
     return new Promise((resolve, reject) => {
       const DBparams = {
         TableName: 'etherless',

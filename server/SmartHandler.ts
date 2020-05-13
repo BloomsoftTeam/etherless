@@ -1,14 +1,13 @@
 import { Wallet } from 'ethers';
 import log from './common/Logger';
 import EthersHelper from './common/EthersHelper';
-// import { TokenManagerInterface } from './common/TokenManager';
 
 const DEPLOY_EVENT = 'uploadToken';
 const RUN_EVENT = 'runRequest';
 const DELETE_EVENT = 'deleteRequest';
 
 class SmartHandler {
-  private readonly ethersHelper: EthersHelper; // tipo: EthersHelper
+  private readonly ethersHelper: EthersHelper;
 
   private readonly wallet: Wallet;
 
@@ -99,7 +98,6 @@ class SmartHandler {
     funcOwner: string,
     opToken: string): Promise<void> {
     return new Promise((resolve, reject) => {
-      // this.ethersHelper.loadSmartContract(process.env.STORAGE_CONTRACT_ADDRESS, this.wallet)
       this.ethersHelper.loadSmartContract(process.env.RUN_CONTRACT_ADDRESS, this.wallet)
         .then((runContract) => {
           log.info('[SmartHandler]\tsending results');

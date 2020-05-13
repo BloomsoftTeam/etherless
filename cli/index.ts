@@ -26,7 +26,6 @@ interface ClientOption {
   token?: boolean;
 }
 
-// non dite a Cardin che questa e' un'abstractFactory
 function buildClient(opts: ClientOption): EtherlessClient {
   let ethereumManager: EthereumManager;
   let serverManager: ServerManager;
@@ -185,7 +184,6 @@ function initOrCreateWallet() {
   });
 }
 
-// dipende solo da Key e Ethereum (e ethers)
 function initFunction() {
   const keyManager = new KeyManager();
   keyManager.checkCredentialsExistance()
@@ -216,7 +214,6 @@ function initFunction() {
     });
 }
 
-// dipende solo da Key e Ethereum (e ethers), Server e Token
 function deployFunction(argv) {
   let keyManager = new KeyManager();
 
@@ -261,7 +258,6 @@ function logout() {
     });
 }
 
-// dipende solo da Key e Ethereum (e ethers), Server e Token
 function runFunction(argv) {
   let keyManager = new KeyManager();
 
@@ -569,20 +565,3 @@ yargs
   .help('why')
   .check(verifyArguments)
   .parse();
-
-/* idea
- *
-  .command('getWallet', 'init?!', () => {}, () => {
-    const keyManager = new KeyManager('password');
-    const client = buildClient(
-      ClientOption.Smart
-    );
-    keyManager.loadCredentials()
-      .then((key) => {
-        const wallet = client.linkWalletWithKey(key);
-        log.info(`Getting wallet from credentials: ${wallet.address}`);
-      })
-      .catch(log.info);
-  })
-
- */

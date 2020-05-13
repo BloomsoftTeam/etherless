@@ -1,14 +1,5 @@
-// import { LambdaManager, LambdaManagerInterface } from './LambdaManager';
-
-
 import { InfuraProvider } from 'ethers/providers';
 
-// import ServerHandler from './ServerHandler';
-
-
-// import { ServerHandlerInterface, ServerHandlerInterface } from './ServerHandler';
-
-// import { SmartHanler } from './SmartHandler';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import fileUpload from 'express-fileupload';
@@ -158,7 +149,6 @@ app.post('/deploy', (req, res) => {
     const zipStream = req.files.funcZip.data;
     const configStream = req.files.funcConfig.data;
     const { token, funcName } = req.body;
-    // controllare se esiste già, e chi è l'owner
     const tokenManager = new TokenManager();
     tokenManager.computeProof(token)
       .then((proof) => {
@@ -168,9 +158,12 @@ app.post('/deploy', (req, res) => {
             aws.deployFunction(zipStream, funcDataObj)
               .then(() => {
                 log.info('Function deployed.');
+                const awsTier = 0.0000002083; // for lambda function with 128 MB cpu environment
+                const price = (funcDataObj.timeout / 1000) * (128 / 1024) * awsTier * 1.1 + funcDataObj.fee;
+                const priceInWei = Math.floor(price * 0.006 * 1000000000000000000);
                 smartHandler.terminateDeploy(funcName,
                   tokens[proof].devAddress,
-                  funcDataObj.fee * 1000,
+                  priceInWei,
                   tokens[proof].opToken)
                   .then(() => {
                     log.info(`[server] ${funcDataObj.funcName}`);
