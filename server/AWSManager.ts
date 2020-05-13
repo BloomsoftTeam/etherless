@@ -37,71 +37,115 @@ class AWSManager implements AWSManagerInterface {
     this.LambdaRole = lambdaRole;
   }
 
+  getFunctionData(funcName: string): Promise<FunctionDataInterface> {
+    return new Promise((resolve, reject) => {
+      const dbQuery = {
+        TableName: 'etherless',
+        ExpressionAttributeValues: {
+          ':v1': funcName,
+        },
+        FilterExpression: 'funcName = :v1',
+        ProjectionExpression: 'devAddress, price',
+      };
+      this.docClient.scan(dbQuery, (err, data) => {
+        if (err) {
+          log.error('Unable to get item. Error JSON:', JSON.stringify(err, null, 2));
+          reject(err);
+          return;
+        }
+        if (data.Count !== 1) {
+          reject(err);
+          return;
+        }
+        resolve(<FunctionDataInterface> {
+          funcPrice: data.Items[0].price,
+          funcOwner: data.Items[0].devAddress,
+        });
+      });
+    });
+  }
+
   deployFunction(fileStream: ArrayBuffer, funcData: any): Promise<void> {
     return new Promise((resolve, reject) => {
-      //  (funcData, sourceCodeStream, callback) => {
+      const internalDeployFunction = (fileStream: ArrayBuffer, funcData: any): Promise<void> =>{
+        const { lambda } = this;
 
-      // DEPLOY SU LAMBDA
-
-      const { lambda } = this;
-
-      const lambdaParams = {
-        Code: {
-          ZipFile: fileStream,
-        },
-        Description: funcData.description,
-        FunctionName: funcData.funcName,
-        Handler: `${funcData.indexPath}.handler`, // is of the form of the name of your source file and then name of your function handler
-        MemorySize: 128,
-        Publish: true,
-        Role: this.LambdaRole,
-        Runtime: 'nodejs12.x',
-        Timeout: funcData.timeout,
-        VpcConfig: {
-        },
-      };
-
-      const devAddress = funcData.owner;
-      const { funcName } = funcData;
-      const { description } = funcData;
-      const { params } = funcData;
-      // TODO calcolare in modo giusto il prezzo
-      const price = funcData.fee * 5;
-      const { usage } = funcData;
-
-      lambda.createFunction(lambdaParams, (err, data) => {
-        if (err) {
-          log.error(err);
-          reject(err);
-        }
-        log.info(`[AWSManager]\t${data}`);
-
-        const table = 'etherless';
-        const unavailable = 'false';
-
-        const itemValue = {
-          TableName: table,
-          Item: {
-            devAddress,
-            funcName,
-            description,
-            params,
-            price,
-            unavailable,
-            usage,
+        const lambdaParams = {
+          Code: {
+            ZipFile: fileStream,
+          },
+          Description: funcData.description,
+          FunctionName: funcData.funcName,
+          Handler: `${funcData.indexPath}.handler`, // is of the form of the name of your source file and then name of your function handler
+          MemorySize: 128,
+          Publish: true,
+          Role: this.LambdaRole,
+          Runtime: 'nodejs12.x',
+          Timeout: funcData.timeout,
+          VpcConfig: {
           },
         };
 
-        log.info('[AWSManager] Adding a new item...');
-        this.docClient.put(itemValue, (docErr, docData) => {
-          if (docErr) {
-            reject(docErr);
-          } else {
-            log.info(`[AWSManager]\t${docData}`);
-            resolve();
+        const devAddress = funcData.owner;
+        const { funcName } = funcData;
+        const { description } = funcData;
+        const { params } = funcData;
+        // TODO calcolare in modo giusto il prezzo
+        const price = funcData.fee * 5;
+        const { usage } = funcData;
+
+        lambda.createFunction(lambdaParams, (err, data) => {
+          if (err) {
+            log.error(err);
+            reject(err);
           }
+          log.info(`[AWSManager]\t${data}`);
+
+          const table = 'etherless';
+          const unavailable = 'false';
+
+          const itemValue = {
+            TableName: table,
+            Item: {
+              devAddress,
+              funcName,
+              description,
+              params,
+              price,
+              unavailable,
+              usage,
+            },
+          };
+
+          log.info('[AWSManager] Adding a new item...');
+          this.docClient.put(itemValue, (docErr, docData) => {
+            if (docErr) {
+              reject(docErr);
+            } else {
+              log.info(`[AWSManager]\t${docData}`);
+              resolve();
+            }
+          });
         });
-      });
+      } 
+      this.getFunctionData(funcData.funcName)
+        .then((dataFun) => {
+          if(funcData.owner !== dataFun.funcOwner) {
+            log.error('You are not allowed to overwrite this function (you are not the owner)')
+            reject;
+          } else {
+            this.deleteFunction(funcData.funcName, funcData.owner)
+              .then(() => {
+                internalDeployFunction(fileStream, funcData)
+                  .then(resolve)
+                  .catch(reject);
+              }).catch((reject));
+          }
+        }).catch(() =>{ // Quindi non esiste la funzione 
+          internalDeployFunction(fileStream, funcData)
+            .then(resolve)
+            .catch(reject);
+        }); 
     });
   }
 
@@ -129,34 +173,6 @@ class AWSManager implements AWSManagerInterface {
     return duration;
   }
 
-  getFunctionData(funcName: string): Promise<FunctionDataInterface> {
-    return new Promise((resolve, reject) => {
-      const dbQuery = {
-        TableName: 'etherless',
-        ExpressionAttributeValues: {
-          ':v1': funcName,
-        },
-        FilterExpression: 'funcName = :v1',
-        ProjectionExpression: 'devAddress, price',
-      };
-      this.docClient.scan(dbQuery, (err, data) => {
-        if (err) {
-          log.error('Unable to get item. Error JSON:', JSON.stringify(err, null, 2));
-          reject(err);
-          return;
-        }
-        if (data.Count != 1) {
-          log.error('Why are you running?');
-          reject(err);
-          return;
-        }
-        resolve(<FunctionDataInterface> {
-          funcPrice: data.Items[0].price,
-          funcOwner: data.Items[0].devAddress,
-        });
-      });
-    });
-  }
 
   deleteFunction(funcName: string, devAddress: string): Promise<void> {
     // devAddress ottenuto dall'evento smart di deleteContract

@@ -91,7 +91,7 @@ class EtherlessClient implements EtherlessClientInterface {
       const spinner = ora('Starting run.').start();
       this.ethereumManager.sendRunRequest(funcName, paramaters)
         .then(() => {
-          spinner.text = 'Run requeste sent.';
+          spinner.text = 'Run request sent.';
           // log.info('[EtherlessClient]\tRequest send.');
           this.ethereumManager.listenOperationTokenRunEvent(funcName)
             .then((opToken) => {
@@ -122,31 +122,32 @@ class EtherlessClient implements EtherlessClientInterface {
   deleteFunction(funcName: string): Promise<void> {
     return new Promise((resolve, reject) => {
       const spinner = ora('Starting delete.').start();
-      this.ethereumManager.sendDeleteRequest(funcName)
-        .then(() => {
-          // log.info('[EtherlessClient]\trichiesta inviata');
-        })
-        .catch((err) => {
-          spinner.fail('Failed delete.');
-          this.ethereumManager.terminateListenDeleteToken()
-            .then(() => {
-              reject(err);
-            })
-            .catch(reject);
-        });
       this.ethereumManager.listenOperationTokenDeleteEvent(funcName)
-        .then((opToken) => {
-          // log.info('[EtherlessClient]\tReceived token.');
-          spinner.text = 'Received opeartion token.';
-          this.ethereumManager.listenDeleteEvents(opToken)
-            .then((res) => {
-              spinner.succeed('Delete succeed.');
-              resolve(res);
+        .then((deletePromise) => {
+          this.ethereumManager.sendDeleteRequest(funcName)
+            .then(() => {
+              // log.info('[EtherlessClient]\trichiesta inviata');
             })
             .catch((err) => {
-              spinner.fail('Delete failed');
+              spinner.fail('Failed delete.');
+              deletePromise.terminate()
               reject(err);
             });
+          deletePromise.promise
+            .then((opToken) => {
+              // log.info('[EtherlessClient]\tReceived token.');
+              spinner.text = 'Received opeartion token.';
+              this.ethereumManager.listenDeleteEvents(opToken)
+                .then(() => {
+                  spinner.succeed('Delete succeed.');
+                  resolve();
+                })
+                .catch((err) => {
+                  spinner.fail('Delete failed');
+                  reject(err);
+                });
+            })
+            .catch(reject);
         })
         .catch(reject);
     });

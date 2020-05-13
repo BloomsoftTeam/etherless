@@ -14,7 +14,6 @@ import { EtherlessClient } from './EtherlessClient';
 
 dotenv.config({ path: path.resolve(__dirname, '.env') });
 
-// const SERVER_EDGE = 'https://bd9fnvjncl.execute-api.eu-west-2.amazonaws.com/etherless_test/etherless';
 const {
   SERVER_EDGE,
   API_EDGE,
@@ -35,12 +34,7 @@ function buildClient(opts: ClientOption): EtherlessClient {
   if (opts.smart) {
     const infura = new InfuraProvider('ropsten', process.env.INFURA_PROJECT_ID);
     const ethersHelper = new EthersHelper(infura, ETHERSCAN_API_KEY);
-    ethereumManager = new EthereumManager(ethersHelper, {
-      storage: process.env.STORAGE_CONTRACT_ADDRESS,
-      deploy: process.env.DEPLOY_CONTRACT_ADDRESS,
-      run: process.env.RUN_CONTRACT_ADDRESS,
-      remove: process.env.DELETE_CONTRACT_ADDRESS,
-    });
+    ethereumManager = new EthereumManager(ethersHelper);
   }
   if (opts.server) {
     serverManager = new ServerManager(SERVER_EDGE, API_EDGE);
@@ -224,14 +218,14 @@ function initFunction() {
 
 // dipende solo da Key e Ethereum (e ethers), Server e Token
 function deployFunction(argv) {
-  const keyManager = new KeyManager();
+  let keyManager = new KeyManager();
 
   keyManager.checkCredentialsExistance()
     .then(() => {
       askPassword()
         .then((password) => {
           const client = buildClient(<ClientOption> { smart: true, server: true, token: true });
-          keyManager.setPassword(password);
+          keyManager = new KeyManager(password);
 
           const funcName = argv._[1];
           keyManager.loadCredentials()
@@ -269,14 +263,14 @@ function logout() {
 
 // dipende solo da Key e Ethereum (e ethers), Server e Token
 function runFunction(argv) {
-  const keyManager = new KeyManager();
+  let keyManager = new KeyManager();
 
   keyManager.checkCredentialsExistance()
     .then(() => {
       askPassword()
         .then((password) => {
           const client = buildClient(<ClientOption> { smart: true, server: true, token: true });
-          keyManager.setPassword(password);
+          keyManager = new KeyManager(password);
 
           const paramsArr = argv._.filter((value, index) => index > 1);
 
@@ -294,12 +288,12 @@ function runFunction(argv) {
             .then((key) => {
               const wallet = client.linkWalletWithKey(key);
               log.info(`Getting wallet from credentials: ${wallet.address}`);
-              client.runFunction(funcName, JSON.stringify(paramsJson))
-                .then((results: any) => {
-                  const res = JSON.parse(JSON.parse(JSON.parse(JSON.parse(results).Payload).body).sum);
-                  log.info(`Result: ${res}`);
-                  log.info(`Execution time: ${0.1} s`);
-                  log.info(`Price: ${0.1} ETH`);
+              client.runFunction(funcName, JSON.stringify(paramsJson)) // TODO: wallet vuoto
+                .then((jsonresult: any) => {
+                  const result = JSON.parse(jsonresult);
+                  log.info(`Result: ${result.result}`);
+                  log.info(`Execution time: ${result.duration} s`);
+                  log.info(`Price: ${result.price} Wei`);
                 })
                 .catch(() => {
                   log.info('Cannot run function. It may not exist or may not be available.');
@@ -362,7 +356,7 @@ function searchFunction(argv) {
 }
 
 function deleteFunction(argv) {
-  const keyManager = new KeyManager();
+  let keyManager = new KeyManager();
 
   keyManager.checkCredentialsExistance()
     .then(() => {
@@ -371,7 +365,7 @@ function deleteFunction(argv) {
           const client = buildClient(<ClientOption> { smart: true, server: true });
 
           const funcName = argv._[1];
-          keyManager.setPassword(password);
+          keyManager = new KeyManager(password);
           keyManager.loadCredentials()
             .then((key) => {
               const wallet = client.linkWalletWithKey(key);
@@ -379,10 +373,11 @@ function deleteFunction(argv) {
               client.deleteFunction(funcName)
                 .then(() => {
                   // viene restituito null sia che venga eliminata che non
-                  log.info('You have successfully removed the function Fibonacci from the platform.');
+                  log.info(`You have successfully removed the function ${funcName} from the platform.`);
                 })
                 .catch(() => {
                   log.info('This function may not exist or you are not allowed delete this function.');
+                  process.exit(0);
                 });
             })
             .catch((err) => {
@@ -562,15 +557,15 @@ const verifyArguments = (argv) => {
 };
 
 yargs
-  .command('init', 'init?!', () => {}, initFunction)
-  .command('logout', 'init?!', () => {}, logout)
-  .command('run', 'init?!', () => {}, runFunction)
-  .command('list', 'init?!', listOptions, listFunction)
-  .command('deploy', 'init?!', () => {}, deployFunction)
-  .command('delete', 'init?!', () => {}, deleteFunction)
-  .command('search', 'init?!', () => {}, searchFunction)
-  .command('get_help', 'init?!', helpOptions, helpFunction)
-  .command('createConfig', 'init?!', () => {}, createConfigFunction)
+  .command('init', 'Allows the user to associate a payment method to the platform by eithercreating a new ETH wallet or associating an existing one. The wallet will let the user access all paid services.', () => {}, initFunction)
+  .command('logout', 'Allows the user to remove the previously associated payment method.', () => {}, logout)
+  .command('run', 'Allows the user to execute a function available on the platform specifying all needed parameters.', () => {}, runFunction)
+  .command('list', 'Lists all available functions available in the platform with their respective description, usage and price.', listOptions, listFunction)
+  .command('deploy', 'Allows the developer to deploy a function to the platform with its source code and a configuration file for the meta data.', () => {}, deployFunction)
+  .command('delete', 'Allows the developer to delete a function available on the platform.', () => {}, deleteFunction)
+  .command('search', 'Lists all available functions on the platform matching the keyword specified with the description of the functions.', () => {}, searchFunction)
+  .command('get_help', 'View the guide to Etherless', helpOptions, helpFunction)
+  .command('createConfig', 'Creates a JSON file in Download folder with empty parameters to configure the deploy of a function', () => {}, createConfigFunction)
   .help('why')
   .check(verifyArguments)
   .parse();

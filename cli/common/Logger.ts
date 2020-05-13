@@ -2,7 +2,7 @@ import winston = require('winston');
 
 const aFormat = winston.format.printf(({
   level, message, timestamp,
-}) => `${timestamp}\t${level}: ${message}`);
+}) => `${message}`); //=> `${timestamp}\t${level}: ${message}`);
 
 const logger = winston.createLogger({
   level: 'info',

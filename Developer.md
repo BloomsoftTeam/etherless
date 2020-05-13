@@ -1,5 +1,5 @@
 # Etherless
-In this file there the instruction for future developers who will improve the platform.
+In this file there are the instructions for future developers who will improves the platform.
 
 ## Pre-requisites
 - ```nodejs v12.13.0``` or above installed on your computer;
@@ -22,7 +22,7 @@ This section refer to the deploy of ```etherless DynamoDB table```, ```API Gatew
 - update the ```SERVER_EDGE``` in the ```.env``` file with the new prefix of ```API endpoint``` (if necessary), for example ```SERVER_EDGE=https://API_ID.execute-api.eu-west-2.amazonaws.com/dev/```.
 
 ## Deploy of AWS EC2 Istance
-Gian
+TODO
 
 ## Deploy of Smart Contracts
-Gian
+TODO
