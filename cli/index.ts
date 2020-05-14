@@ -318,10 +318,14 @@ function runFunction(argv) {
               console.log(`Getting wallet from credentials: ${wallet.address}`);
               client.runFunction(funcName, JSON.stringify(paramsJson))
                 .then((jsonresult: any) => {
-                  const result = JSON.parse(jsonresult);
-                  console.log(chalk.green.bold(`Result: ${result.result}`));
-                  console.log(`Execution time: ${result.duration} ms`);
-                  console.log(`Price: ${result.price} Wei`);
+                  try {
+                    const result = JSON.parse(jsonresult);
+                    console.log(chalk.green.bold(`Result: ${result.result}`));
+                    console.log(`Execution time: ${result.duration} ms`);
+                    console.log(`Price: ${result.price} Wei`);
+                  } catch (err) {
+                    console.log(chalk.red.bold('Function error. The function has been marked as hidden.'));
+                  }
                 })
                 .catch((err) => {
                   console.log(chalk.red.bold(`Cannot run function. ${err}`));

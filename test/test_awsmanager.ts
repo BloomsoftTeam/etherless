@@ -56,6 +56,7 @@ const JSONpayLoad = {
 const payLoad = JSON.stringify(JSONpayLoad);
 const lambdaFuncName = 'sommaTesting';
 const testingPath = path.resolve('test/DeployDeleteTestingFiles/');
+console.log(testingPath);
 const zipFile = fs.readFileSync(`${testingPath}/etherlessDeployTesting.zip`);
 const configFile = JSON.parse((fs.readFileSync(`${testingPath}/etherlessDeployTesting.json`)).toString());
 const deleteDBParams = {
@@ -117,12 +118,12 @@ describe('deployFunction', () => {
                 if (err2) {
                   reject(new Error(err2.toString()));
                 } else {
-                  done();
                   resolve();
                 }
               })
             }
-          })
+          });
+          done();
         }).catch((error) => {
           reject(error);
         }); 
