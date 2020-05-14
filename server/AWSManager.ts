@@ -140,9 +140,9 @@ class AWSManager implements AWSManagerInterface {
       const executionPrice = (funData.timeout)
           * (128 / 1024)
           * awsTier
-          * 1.1
-          + funData.fee;
-      const price = Math.floor(executionPrice * 0.006 * 1000000000000000000);
+          * 1.1;
+      let price = Math.floor(executionPrice * 0.006 * 1000000000000000000);
+      price +=  funData.fee;
       const { usage } = funData;
 
       lambda.createFunction(lambdaParams, (err, data) => {
