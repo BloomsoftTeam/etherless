@@ -262,7 +262,7 @@ function deployFunction(argv) {
                 })
                 .catch(console.error);
             })
-            .catch((err) => {console.error(`Cannot load your credentials. ${err}`)});
+            .catch((err) => { console.error(`Cannot load your credentials. ${err}`); });
         })
         .catch(console.error);
     })

@@ -2,7 +2,6 @@ import AWS from 'aws-sdk';
 import log from './common/Logger';
 
 export interface AWSManagerInterface {
-  readonly router: string;
   readonly lambda: AWS.Lambda;
   readonly docClient: AWS.DynamoDB.DocumentClient;
   deployFunction(stream: ArrayBuffer, funcName: string): Promise<void>;
@@ -21,8 +20,6 @@ export interface FunctionDataInterface {
 
 class AWSManager implements AWSManagerInterface {
   readonly config: AWS.Config;
-
-  readonly router: string;
 
   readonly lambda: AWS.Lambda;
 
@@ -50,7 +47,7 @@ class AWSManager implements AWSManagerInterface {
       if (err) {
         log.error('Funzione inesistente');
       } else {
-        timeoutResult = data.Timeout;
+        timeoutResult = Number(data.Timeout);
       }
     });
     return timeoutResult;
@@ -102,11 +99,16 @@ class AWSManager implements AWSManagerInterface {
           reject(err);
           return;
         }
-        resolve(<FunctionDataInterface> {
-          devFee: data.Items[0].devFee,
-          funcPrice: data.Items[0].price,
-          funcOwner: data.Items[0].devAddress,
-        });
+
+        if (data.Items) {
+          resolve(<FunctionDataInterface> {
+            devFee: data.Items[0].devFee,
+            funcPrice: data.Items[0].price,
+            funcOwner: data.Items[0].devAddress,
+          });
+        } else {
+          reject(new Error('Questo non lo so fare'));
+        }
       });
     });
   }
@@ -144,8 +146,10 @@ class AWSManager implements AWSManagerInterface {
           * (128 / 1024)
           * awsTier
           * 1.1;
+      console.log(executionPrice);
       let priceInWei = Math.floor(executionPrice * 0.01 * 1000000000000000000);
-      priceInWei += funData.fee;
+      console.log(priceInWei);
+      priceInWei += Number(funData.fee);
       const { usage } = funData;
 
       lambda.createFunction(lambdaParams, (err, data) => {

@@ -17,6 +17,9 @@ const config = new AWS.Config({
   secretAccessKey: AWS_KEY,
   region: 'eu-west-2',
 });
+if (!AWS_ID) {
+  throw new Error('AWS non settato');
+}
 const lambda = new AWS.Lambda(config);
 const docClient = new AWS.DynamoDB.DocumentClient(config);
 const awsManager = new AWSManager(AWS_ID, AWS_KEY, AWS_LAMBDA_ROLE);
