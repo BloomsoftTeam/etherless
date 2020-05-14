@@ -165,7 +165,7 @@ app.post('/deploy', (req, res) => {
                   * (128 / 1024)
                   * awsTier
                   * 1.1;
-                let priceInWei = Math.floor(price * 0.006 * 1000000000000000000);
+                let priceInWei = Math.floor(price * 0.01 * 1000000000000000000);
                 priceInWei += funcDataObj.fee;
                 smartHandler.terminateDeploy(funcName,
                   tokens[proof].devAddress,

@@ -137,7 +137,7 @@ class AWSManager implements AWSManagerInterface {
       const { description } = funData;
       const { params } = funData;
       const awsTier = 0.0000002083; // for lambda function with 128 MB cpu environment
-      const executionPrice = (funData.timeout / 1000)
+      const executionPrice = (funData.timeout)
           * (128 / 1024)
           * awsTier
           * 1.1
