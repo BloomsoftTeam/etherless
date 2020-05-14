@@ -9,10 +9,12 @@ export interface AWSManagerInterface {
   invokeLambda(funcName: string, payLoad: string): Promise<any>;
   deleteFunction(funcName: string, devAddress: string): Promise<void>;
   getExecutionTimeFrom(funcName: string): number;
+  getFunctionData(funcName: string): Promise<FunctionDataInterface>;
   updateRecord(funcName: string, devAddress: string): Promise<void>;
 }
 
 export interface FunctionDataInterface {
+  devFee: number;
   funcPrice: number;
   funcOwner: string;
 }
@@ -101,6 +103,7 @@ class AWSManager implements AWSManagerInterface {
           return;
         }
         resolve(<FunctionDataInterface> {
+          devFee: data.Items[0].devFee,
           funcPrice: data.Items[0].price,
           funcOwner: data.Items[0].devAddress,
         });
@@ -137,12 +140,12 @@ class AWSManager implements AWSManagerInterface {
       const { description } = funData;
       const { params } = funData;
       const awsTier = 0.0000002083; // for lambda function with 128 MB cpu environment
-      const executionPrice = (funData.timeout)
+      const executionPrice = (funData.timeout + 5)
           * (128 / 1024)
           * awsTier
           * 1.1;
-      let price = Math.floor(executionPrice * 0.006 * 1000000000000000000);
-      price +=  funData.fee;
+      let priceInWei = Math.floor(executionPrice * 0.01 * 1000000000000000000);
+      priceInWei += funData.fee;
       const { usage } = funData;
 
       lambda.createFunction(lambdaParams, (err, data) => {
@@ -162,7 +165,8 @@ class AWSManager implements AWSManagerInterface {
             funcName,
             description,
             params,
-            price,
+            price: priceInWei,
+            devFee: funData.fee,
             unavailable,
             usage,
           },
