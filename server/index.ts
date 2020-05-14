@@ -82,8 +82,8 @@ smartHandler.listenRunRequest(
               duration: billedDuration,
               price: executionPriceInWei + Number(devFee),
             };
-            console.log(result);
-            if (billedDuration === aws.getTimemout(funcName)) {
+            if (result.FunctionError) {
+              console.log(result.FunctionError);
               aws.updateRecord(funcName, devAddress)
                 .then(() => {
                   log.error('[server] Function Timeout overflow, set function to hidden');
@@ -161,10 +161,7 @@ app.post('/deploy', (req, res) => {
                   * awsTier
                   * 1.1;
                 var priceInWei = Math.floor(price * 0.01 * (10**18));
-                console.log(priceInWei);
-                console.log(funcDataObj.fee);
                 priceInWei = Number(priceInWei) + Number(funcDataObj.fee);
-                console.log(priceInWei);
                 smartHandler.terminateDeploy(funcName,
                   tokens[proof].devAddress,
                   priceInWei,
