@@ -176,15 +176,15 @@ class EthereumManager implements EthereumManagerInterface {
                     .then(resolve)
                     .catch(reject);
                 })
-                .catch((err) => {
+                .catch(() => {
                   reject(new Error(`Cannot send run request ${price}`));
                 });
             })
-            .catch((err) => {
+            .catch(() => {
               reject(new Error('Cannot check func price'));
             });
         })
-        .catch((err) => {
+        .catch(() => {
           reject(new Error('Cannot load smart contract'));
         });
     });

@@ -68,11 +68,11 @@ function printResult(result: any) {
     return;
   }
   result.forEach((item) => {
-    console.log(chalk.hex('#0000ff').bold(`Name:`) + chalk.hex('#00ffff').bold(`${item.funcName}`));
-    console.log(chalk.hex('#0000ff').bold(`Desc:`) + `${item.description}`);
-    console.log(chalk.hex('#0000ff').bold(`Price:`) + `${item.price}`);
-    console.log(chalk.hex('#0000ff').bold(`Params:`) + `${item.params}`);
-    console.log(chalk.hex('#0000ff').bold(`Usage:`) + `${item.usage}\n`);
+    console.log(chalk.hex('#0000ff').bold('Name:') + chalk.hex('#00ffff').bold(`${item.funcName}`));
+    console.log(`${chalk.hex('#0000ff').bold('Desc:')}${item.description}`);
+    console.log(`${chalk.hex('#0000ff').bold('Price:')}${item.price}`);
+    console.log(`${chalk.hex('#0000ff').bold('Params:')}${item.params}`);
+    console.log(`${chalk.hex('#0000ff').bold('Usage:')}${item.usage}\n`);
   });
 }
 
