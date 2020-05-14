@@ -42,7 +42,9 @@ describe('newToken', () => {
         expect(result.token.length).to.be.equal(86);
         done();
         resolve();
-      }).catch(reject);
+      }).catch((error) => {
+        reject(new Error(error.toString()));
+      });
     }).catch(assert.fail);
   });
 });
@@ -78,7 +80,9 @@ describe('computeProof', () => {
         expect(result).to.be.equal(concreteToken.proof);
         done();
         resolve();
-      }).catch(reject);
+      }).catch((error) => {
+        reject(new Error(error.toString()));
+      });
     }).catch(assert.fail);
   });
 });
@@ -92,7 +96,9 @@ describe('verifyToken', () => {
         expect(result).to.be.equal(true);
         done();
         resolve();
-      }).catch(reject);
+      }).catch((error) => {
+        reject(new Error(error.toString()));
+      });
     }).catch(assert.fail);
   });
 });

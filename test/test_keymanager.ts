@@ -19,11 +19,11 @@ const walletPath = path.resolve(credentialsPath, 'wallet.txt');
 const wallet = '0xA23E02B08003AD253fa5f217efCBa8D1213c687b';
 const privatekey = '0xc06d007178f5141e3ef38725c1f4be28507e3c10d85eba1eb519ccefbb3ad12a';
 const criptedKey = 'etlkeyKsJyKjq5Ie5fa0xEE5QQ5QOAYX9aGYrCN4jgCyDOA4CQr6Li-hEAncqgLex_WDkuV38WAUNgIFoXZNTWY2oZJh9eRzjn2JuGpwCPfHaDlWFLf7uRjiJ8AFpd1BTYHk6TbVmfGToRUpTZ0kZ4OpSoqxdy_Q';
+const criptedLength = criptedKey.length;
 
 describe('encryptData', () => {
   it('encryptData is working', (done) => {
     new Promise((resolve, reject) => {
-      const criptedLength = criptedKey.length;
       const matchKey = 'etlkey';
       t.encryptData(privatekey)
       .then((result) => {
@@ -31,7 +31,9 @@ describe('encryptData', () => {
         expect(result.length).to.be.equal(criptedLength);
         done();
         resolve();
-      }).catch(reject);
+      }).catch((error) => {
+        reject(new Error(error.toString()));
+      });
     }).catch(assert.fail);
   });
 });
@@ -44,7 +46,9 @@ describe('decryptData', () => {
         expect(result).to.be.equal(privatekey);
         done();
         resolve();
-      }).catch(reject);
+      }).catch((error) => {
+        reject(new Error(error.toString()));
+      });
     }).catch(assert.fail);
   });
 });
@@ -57,12 +61,17 @@ describe('saveCredentials', () => {
         const readWallet = fs.readFileSync(walletPath).toString();
         const readKey = fs.readFileSync(keyPath).toString();
         expect(readWallet).to.be.equal(wallet);
-        expect(readKey).to.be.equal(criptedKey);
+        expect(readKey.length).to.be.equal(criptedLength);
         fs.unlinkSync(walletPath);
         fs.unlinkSync(keyPath);
-      }).catch(reject);      
-      done();
-      resolve();
+        done();
+        resolve();
+      }).catch((error) => {
+        fs.unlinkSync(walletPath);
+        fs.unlinkSync(keyPath);
+        reject(new Error(error.toString()));
+      });      
+      
     }).catch(assert.fail);
   });
 });
@@ -76,7 +85,9 @@ describe('checkCredentialsExistance', () => {
       .then(() => {
         done();
         resolve();
-      }).catch(reject);
+      }).catch((error) => {
+        reject(new Error(error.toString()));
+      });
     }).catch(assert.fail);
   });
 });
@@ -107,7 +118,9 @@ describe('loadPublicKey', () => {
         expect(readWallet).to.be.equal(wallet);
         done();
         resolve;
-      }).catch(reject);
+      }).catch((error) => {
+        reject(new Error(error.toString()));
+      });
     }).catch(assert.fail);
   });
 });
@@ -121,7 +134,9 @@ describe('loadCredentials', () => {
         expect(readKey).to.be.equal(privatekey);
         done();
         resolve;
-      }).catch(reject);
+      }).catch((error) => {
+        reject(new Error(error.toString()));
+      });
     }).catch(assert.fail);
   });
 });
@@ -135,7 +150,9 @@ describe('removeCredentials', () => {
       .then(() => {
         done();
         resolve;
-      }).catch(reject);
+      }).catch((error) => {
+        reject(new Error(error.toString()));
+      });
     }).catch(assert.fail);
   });
 });
