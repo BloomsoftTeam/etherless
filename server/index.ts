@@ -82,6 +82,7 @@ smartHandler.listenRunRequest(
               duration: billedDuration,
               price: executionPriceInWei + Number(devFee),
             };
+            console.log(result);
             if (billedDuration === aws.getTimemout(funcName)) {
               aws.updateRecord(funcName, devAddress)
                 .then(() => {
