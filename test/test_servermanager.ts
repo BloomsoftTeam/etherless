@@ -14,7 +14,9 @@ describe('searchFunction', () => {
         expect(JSON.stringify(response)).include('{"funcName":"TestingFunction","params":"integer, integer","unavailable":"false","usage":"function for testing","price":"1","description":"Function used by unit test","devAddress":"testAddress"}');
         resolve(done());
       })
-      .catch(reject);
+      .catch((error) => {
+        reject(new Error(error.toString()));
+      });
     });
   });
 });
@@ -28,7 +30,9 @@ describe('searchFunction', () => {
         expect(JSON.stringify(response)).include('{"message":"Internal server error"}');
         resolve(done());
       })
-      .catch(reject);
+      .catch((error) => {
+        reject(new Error(error.toString()));
+      });
     });
   });
 });
@@ -42,7 +46,9 @@ describe('list', () => {
         expect(JSON.stringify(response)).include('{"funcName":"TestingFunction","params":"integer, integer","unavailable":"false","usage":"function for testing","price":"1","description":"Function used by unit test","devAddress":"testAddress"}');
         resolve(done());
       })
-      .catch(reject);
+      .catch((error) => {
+        reject(new Error(error.toString()));
+      });
     });
   });
 });
@@ -58,7 +64,9 @@ describe('listHidden', () => {
         expect(JSON.stringify(response)).include('{"funcName":"TestingFunction2","params":"integer, integer","unavailable":"true","usage":"function for testing","price":"1","description":"Function used by unit test","devAddress":"testAddress2"}');
         resolve(done());
       })
-      .catch(reject);
+      .catch((error) => {
+        reject(new Error(error.toString()));
+      });
     });
   });
 });
@@ -75,7 +83,9 @@ describe('listOwner', () => {
         expect(JSON.stringify(response)).include('{"funcName":"TestingFunction","params":"integer, integer","unavailable":"false","usage":"function for testing","price":"1","description":"Function used by unit test","devAddress":"testAddress"}');
         resolve(done());
       })
-      .catch(reject);
+      .catch((error) => {
+        reject(new Error(error.toString()));
+      });
     });
   });
 });

@@ -71,17 +71,15 @@ describe('updateRecord', () => {
     new Promise((resolve, reject) => {
       docClient.put(recordParam, (err, data) => {
         if (err) {
-          console.log(err);
-          reject(new Error('Can\'t create record for testing'));
+          reject(new Error(err.toString()));
         } else {
           awsManager.updateRecord(funcName, devAddress)
             .then(() => {
               docClient.get(queryParams, (err2, data2) => {
                 docClient.delete(queryParams, (err3) => {
                   if (err2 || err3) {
-                    console.log(err2);
-                    console.log(err3);
-                    reject(new Error('Can\'t get or delete record after update for testing'));
+                    const error = err2.toString().concat('\n').concat(err3.toString());
+                    reject(new Error(error));
                   }
                   expect(data2.Item.unavailable).to.be.equal('true');
                   done();
@@ -92,8 +90,7 @@ describe('updateRecord', () => {
               console.log(err3);
               docClient.delete(queryParams, (err4) => {
                 if (err4){
-                  console.log(err4);
-                  reject(new Error('Can\'t delete record after test fail'))
+                  reject(new Error(err4.toString()));
                 }
               });
               reject(new Error('Can\'t update record for testing'));
@@ -140,7 +137,9 @@ describe('invokeLambda', () => {
           expect(lambdaResult).to.be.equal(7);
           done();
           resolve();
-        }).catch(reject);
+        }).catch((error) => {
+          reject(new Error(error.toString));
+        });
     }).catch(assert.fail);
   });
 });
@@ -168,7 +167,6 @@ describe('deleteFunction', () => {
         if (err) {
           reject(err);
         }
-
         const unavailable = 'false';
         const itemValue = {
           TableName: table,
@@ -191,8 +189,7 @@ describe('deleteFunction', () => {
                 done();
                 resolve();
               }).catch((error) => {
-                console.log(error);
-                reject(new Error(error));
+                reject(new Error(error.toString()));
               });
           }
         });

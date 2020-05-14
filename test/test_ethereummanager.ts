@@ -45,7 +45,9 @@ describe('loadSmartContract', () => {
       .then((contract) => {
         expect((contract.abi).toString()).to.be.equal(abi);
       })
-      .catch(reject);
+      .catch((error) => {
+        reject(new Error(error.toString()));
+      });
       done();
       resolve();
     }).catch(assert.fail);

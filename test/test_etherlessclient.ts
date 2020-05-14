@@ -65,7 +65,9 @@ describe('searchFunction', () => {
         expect(JSON.stringify(response)).include('{"funcName":"TestingFunction","params":"integer, integer","unavailable":"false","usage":"function for testing","price":"1","description":"Function used by unit test","devAddress":"testAddress"}');
         done();
         resolve();
-      }).catch(reject);
+      }).catch((error) => {
+        reject(new Error(error.toString()));
+      });
     }).catch(assert.fail);
   });
 });
@@ -79,7 +81,9 @@ describe('searchFunction empty', () => {
         expect(JSON.stringify(response)).to.be.equal('{"message":"Internal server error"}');
         done();
         resolve();
-      }).catch(reject);
+      }).catch((error) => {
+        reject(new Error(error.toString()));
+      });
     }).catch(assert.fail);
   });
 });
@@ -96,7 +100,9 @@ describe('listOwner', () => {
         expect(JSON.stringify(response)).include('{"funcName":"TestingFunction","params":"integer, integer","unavailable":"false","usage":"function for testing","price":"1","description":"Function used by unit test","devAddress":"testAddress"}');
         done();
         resolve();
-      }).catch(reject);
+      }).catch((error) => {
+        reject(new Error(error.toString()));
+      });
     }).catch(assert.fail);
   });
 });
@@ -113,7 +119,9 @@ describe('listOwner empty', () => {
         expect(JSON.stringify(response)).to.be.equal('{"message":"Internal server error"}');
         done();
         resolve();
-      }).catch(reject);
+      }).catch((error) => {
+        reject(new Error(error.toString()));
+      });
     }).catch(assert.fail);
   });
 });
@@ -150,7 +158,9 @@ describe('list', () => {
         expect(JSON.stringify(response)).include('{"funcName":"TestingFunction","params":"integer, integer","unavailable":"false","usage":"function for testing","price":"1","description":"Function used by unit test","devAddress":"testAddress"}');
         done();
         resolve();
-      }).catch(reject);
+      }).catch((error) => {
+        reject(new Error(error.toString()));
+      });
     }).catch(assert.fail);
   });
 });
@@ -182,7 +192,9 @@ describe('listHidden', () => {
         expect(JSON.stringify(response)).include('{"funcName":"TestingFunction2","params":"integer, integer","unavailable":"true","usage":"function for testing","price":"1","description":"Function used by unit test","devAddress":"testAddress2"}');
         done();
         resolve();
-      }).catch(reject);
+      }).catch((error) => {
+        reject(new Error(error.toString()));
+      });
     }).catch(assert.fail);
   });
 });
