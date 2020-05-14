@@ -70,7 +70,7 @@ smartHandler.listenRunRequest(
         const billedDuration = aws.getExecutionTimeFrom(logResult);
         const awsTier = 0.0000002083; // for lambda function with 128 MB cpu environment
         const executionPrice = (billedDuration / 1000) * (128 / 1024) * awsTier * 1.1;
-        const executionPriceInWei = Math.floor(executionPrice * 0.01 * (10**18));
+        const executionPriceInWei = Math.floor(executionPrice * 0.01 * (10 ** 18));
         // change $ -> ETH del 12 maggio 2020
 
         aws.getFunctionData(funcName)
@@ -160,7 +160,7 @@ app.post('/deploy', (req, res) => {
                   * (128 / 1024)
                   * awsTier
                   * 1.1;
-                var priceInWei = Math.floor(price * 0.01 * (10**18));
+                let priceInWei = Math.floor(price * 0.01 * (10 ** 18));
                 priceInWei = Number(priceInWei) + Number(funcDataObj.fee);
                 smartHandler.terminateDeploy(funcName,
                   tokens[proof].devAddress,
