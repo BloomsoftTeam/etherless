@@ -62,7 +62,7 @@ class AWSManager implements AWSManagerInterface {
           devAddress,
           funcName,
         },
-        UpdateExpression: 'set info.unavailable = :u',
+        UpdateExpression: 'set unavailable = :u',
         ExpressionAttributeValues: {
           ':u': 'true',
         },
