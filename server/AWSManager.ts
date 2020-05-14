@@ -87,7 +87,7 @@ class AWSManager implements AWSManagerInterface {
           ':v1': funcName,
         },
         FilterExpression: 'funcName = :v1',
-        ProjectionExpression: 'devAddress, price',
+        ProjectionExpression: 'devAddress, price, devFee',
       };
       this.docClient.scan(dbQuery, (err, data) => {
         if (err) {
