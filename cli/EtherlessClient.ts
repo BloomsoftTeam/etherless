@@ -63,19 +63,24 @@ class EtherlessClient implements EtherlessClientInterface {
       }
       const spinner = ora('Starting deploy.').start();
       this.tokenManager.newToken().then((token) => {
-        // log.info('[EtherlessClient]\tgenerated token');
         spinner.text = 'generated token';
-        this.ethereumManager.deploy(token.proof, funcName)
-          .then(() => {
-            // log.info('[EtherlessClient]\twaiting operation token');
+        this.ethereumManager.listenOperationTokenDeployEvents(token.proof)
+          .then((deployPromise) => {
+            this.ethereumManager.deploy(token.proof, funcName)
+              .then(() => {
+                // non fa nulla
+              })
+              .catch(() => {
+                deployPromise.terminate();
+                spinner.fail('deploy failed');
+                reject();
+              });
             spinner.text = 'waiting operation token';
-            this.ethereumManager.listenOperationTokenDeployEvents(token.proof)
+            deployPromise.promise
               .then((opToken) => {
-                // log.info('[EtherlessClient]\treceived operation token, waiting server response');
                 spinner.text = 'received operation token, waiting server response';
                 this.ethereumManager.listenRequestUploadEvents(opToken)
                   .then(() => {
-                    // log.info('[EtherlessClient]\tuploading function');
                     spinner.text = 'uploading function';
                     this.serverManager.deploy(file, config, funcName, token.token)
                       .then((result) => {
@@ -111,13 +116,20 @@ class EtherlessClient implements EtherlessClientInterface {
         reject(new Error('Missing EtherlessClient configuration'));
       }
       const spinner = ora('Starting run.').start();
-      this.ethereumManager.sendRunRequest(funcName, paramaters)
-        .then(() => {
+      this.ethereumManager.listenOperationTokenRunEvent(funcName)
+        .then((runPromise) => {
+          this.ethereumManager.sendRunRequest(funcName, paramaters)
+            .then(() => {
+              // non fa nulla qui
+            })
+            .catch(() => {
+              runPromise.terminate();
+              spinner.fail('Run failed');
+              reject(new Error('It may not exist or may not be available.'));
+            });
           spinner.text = 'Run request sent.';
-          // log.info('[EtherlessClient]\tRequest send.');
-          this.ethereumManager.listenOperationTokenRunEvent(funcName)
+          runPromise.promise
             .then((opToken) => {
-              // log.info('[EtherlessClient]\tReceived operation token.');
               spinner.text = 'Received operation token';
               this.ethereumManager.listenRunEvents(opToken)
                 .then((res) => {
@@ -129,10 +141,7 @@ class EtherlessClient implements EtherlessClientInterface {
                   reject(err);
                 });
             })
-            .catch(() => {
-              spinner.fail('Run failed');
-              reject(new Error('It may not exist or may not be available.'));
-            });
+            .catch(reject);
         })
         .catch((err) => {
           spinner.fail(`${err}`);
