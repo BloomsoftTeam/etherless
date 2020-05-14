@@ -316,7 +316,7 @@ function runFunction(argv) {
             .then((key) => {
               const wallet = client.linkWalletWithKey(key);
               console.log(`Getting wallet from credentials: ${wallet.address}`);
-              client.runFunction(funcName, JSON.stringify(paramsJson)) // TODO: wallet vuoto
+              client.runFunction(funcName, JSON.stringify(paramsJson))
                 .then((jsonresult: any) => {
                   const result = JSON.parse(jsonresult);
                   console.log(chalk.green.bold(`Result: ${result.result}`));
