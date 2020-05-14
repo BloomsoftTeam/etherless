@@ -167,6 +167,7 @@ app.post('/deploy', (req, res) => {
                   * 1.1;
                 let priceInWei = Math.floor(price * 0.01);
                 priceInWei += Number(funcDataObj.fee);
+                console.log(priceInWei);
                 smartHandler.terminateDeploy(funcName,
                   tokens[proof].devAddress,
                   priceInWei,
