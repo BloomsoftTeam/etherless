@@ -12,6 +12,9 @@ export interface EtherlessClientInterface {
   runFunction(funcName: string, paramaters: string): Promise<string>;
   deleteFunction(funcName: string): Promise<void>;
   searchFunction(query: string): Promise<string>;
+  checkEthereumManager(): boolean;
+  checkTokenManager(): boolean;
+  checkServerManager(): boolean;
 }
 
 export interface EtherlessClientConfig {
@@ -27,12 +30,22 @@ class EtherlessClient implements EtherlessClientInterface {
 
   private serverManager?: ServerManagerInterface;
 
-  // TODO fare i controlli in tutte le funzioni perche'
-  // ci siano gli elementi che utilizzano
   constructor(opts: EtherlessClientConfig) {
     this.tokenManager = opts.tokenManager;
     this.serverManager = opts.serverManager;
     this.ethereumManager = opts.ethereumManager;
+  }
+
+  checkEthereumManager(): boolean {
+    return (this.ethereumManager !== undefined);
+  }
+
+  checkTokenManager(): boolean {
+    return (this.tokenManager !== undefined);
+  }
+
+  checkServerManager(): boolean {
+    return (this.serverManager !== undefined);
   }
 
   linkWalletWithKey(privateKey: string): Wallet {
@@ -45,6 +58,9 @@ class EtherlessClient implements EtherlessClientInterface {
 
   deployFunction(funcName: string, file: Buffer, config: Buffer): Promise<void> {
     return new Promise((resolve, reject) => {
+      if (!(this.checkTokenManager() && this.checkEthereumManager())) {
+        reject(new Error('Missing EtherlessClient configuration'));
+      }
       const spinner = ora('Starting deploy.').start();
       this.tokenManager.newToken().then((token) => {
         // log.info('[EtherlessClient]\tgenerated token');
@@ -80,6 +96,9 @@ class EtherlessClient implements EtherlessClientInterface {
 
   listFunctionWith(_opt: RequestOptions): Promise<string> {
     return new Promise((resolve, reject) => {
+      if (!(this.checkServerManager())) {
+        reject(new Error('Missing EtherlessClient configuration'));
+      }
       this.serverManager.getFunctionsWith(_opt)
         .then(resolve)
         .catch(reject);
@@ -88,6 +107,9 @@ class EtherlessClient implements EtherlessClientInterface {
 
   runFunction(funcName: string, paramaters: string): Promise<string> {
     return new Promise((resolve, reject) => {
+      if (!(this.checkEthereumManager())) {
+        reject(new Error('Missing EtherlessClient configuration'));
+      }
       const spinner = ora('Starting run.').start();
       this.ethereumManager.sendRunRequest(funcName, paramaters)
         .then(() => {
@@ -121,6 +143,9 @@ class EtherlessClient implements EtherlessClientInterface {
 
   deleteFunction(funcName: string): Promise<void> {
     return new Promise((resolve, reject) => {
+      if (!(this.checkEthereumManager())) {
+        reject(new Error('Missing EtherlessClient configuration'));
+      }
       const spinner = ora('Starting delete.').start();
       this.ethereumManager.listenOperationTokenDeleteEvent(funcName)
         .then((deletePromise) => {
@@ -130,7 +155,7 @@ class EtherlessClient implements EtherlessClientInterface {
             })
             .catch((err) => {
               spinner.fail('Failed delete.');
-              deletePromise.terminate()
+              deletePromise.terminate();
               reject(err);
             });
           deletePromise.promise
@@ -154,7 +179,16 @@ class EtherlessClient implements EtherlessClientInterface {
   }
 
   searchFunction(query: string): Promise<string> {
-    return this.serverManager.searchFunctionsWith(query);
+    return new Promise((resolve, reject) => {
+      if (!(this.checkServerManager())) {
+        reject(new Error('Missing EtherlessClient configuration'));
+      }
+      this.serverManager.searchFunctionsWith(query)
+        .then((result) => {
+          resolve(result);
+        })
+        .catch(reject);
+    });
   }
 }
 

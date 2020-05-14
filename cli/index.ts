@@ -8,7 +8,7 @@ import log from './common/Logger';
 import EthersHelper from './common/EthersHelper';
 import TokenManager from './common/TokenManager';
 import { ServerManager } from './ServerManager';
-import { EthereumManager } from './EthereumManager';
+import { EthereumManager, ContractAddressesInterface } from './EthereumManager';
 import KeyManager from './KeyManager';
 import { EtherlessClient } from './EtherlessClient';
 
@@ -18,6 +18,10 @@ const {
   SERVER_EDGE,
   API_EDGE,
   ETHERSCAN_API_KEY,
+  STORAGE_CONTRACT_ADDRESS,
+  DEPLOY_CONTRACT_ADDRESS,
+  RUN_CONTRACT_ADDRESS,
+  DELETE_CONTRACT_ADDRESS,
 } = process.env;
 
 interface ClientOption {
@@ -26,15 +30,20 @@ interface ClientOption {
   token?: boolean;
 }
 
-// non dite a Cardin che questa e' un'abstractFactory
 function buildClient(opts: ClientOption): EtherlessClient {
   let ethereumManager: EthereumManager;
   let serverManager: ServerManager;
   let tokenManager: TokenManager;
+  const contracts: ContractAddressesInterface = {
+    deploy: DEPLOY_CONTRACT_ADDRESS,
+    run: RUN_CONTRACT_ADDRESS,
+    remove: DELETE_CONTRACT_ADDRESS,
+    storage: STORAGE_CONTRACT_ADDRESS,
+  };
   if (opts.smart) {
     const infura = new InfuraProvider('ropsten', process.env.INFURA_PROJECT_ID);
     const ethersHelper = new EthersHelper(infura, ETHERSCAN_API_KEY);
-    ethereumManager = new EthereumManager(ethersHelper);
+    ethereumManager = new EthereumManager(ethersHelper, contracts);
   }
   if (opts.server) {
     serverManager = new ServerManager(SERVER_EDGE, API_EDGE);
@@ -185,7 +194,6 @@ function initOrCreateWallet() {
   });
 }
 
-// dipende solo da Key e Ethereum (e ethers)
 function initFunction() {
   const keyManager = new KeyManager();
   keyManager.checkCredentialsExistance()
@@ -216,7 +224,6 @@ function initFunction() {
     });
 }
 
-// dipende solo da Key e Ethereum (e ethers), Server e Token
 function deployFunction(argv) {
   let keyManager = new KeyManager();
 
@@ -261,7 +268,6 @@ function logout() {
     });
 }
 
-// dipende solo da Key e Ethereum (e ethers), Server e Token
 function runFunction(argv) {
   let keyManager = new KeyManager();
 
@@ -336,8 +342,8 @@ function listFunction(argv) {
     client.listFunctionWith(opt)
       .then((res: any) => {
         printResult(res);
-      }).catch((err) => {
-        log.error(err);
+      }).catch(() => {
+        log.error('Can\'t retrieve data from database. Check your connection and try again (if problem doesn\'t solve, please contact us).');
       });
   }
 }
@@ -347,11 +353,11 @@ function searchFunction(argv) {
 
   const keywords = argv._[1];
 
-  client.searchFunction(keywords) // devo utilizzare unavailable = true (list)
+  client.searchFunction(keywords)
     .then((res: any) => {
       printResult(res);
-    }).catch((err) => {
-      log.error(err);
+    }).catch(() => {
+      log.error('Can\'t retrieve data from database. Check your connection and try again (if problem doesn\'t solve, please contact us).');
     });
 }
 
@@ -569,20 +575,3 @@ yargs
   .help('why')
   .check(verifyArguments)
   .parse();
-
-/* idea
- *
-  .command('getWallet', 'init?!', () => {}, () => {
-    const keyManager = new KeyManager('password');
-    const client = buildClient(
-      ClientOption.Smart
-    );
-    keyManager.loadCredentials()
-      .then((key) => {
-        const wallet = client.linkWalletWithKey(key);
-        log.info(`Getting wallet from credentials: ${wallet.address}`);
-      })
-      .catch(log.info);
-  })
-
- */
