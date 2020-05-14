@@ -73,18 +73,18 @@ smartHandler.listenRunRequest(
           const billedDuration = aws.getExecutionTimeFrom(logResult);
           const awsTier = 0.0000002083; // for lambda function with 128 MB cpu environment
           const executionPrice = (billedDuration / 1000) * (128 / 1024) * awsTier * 1.1;
-          const executionPriceInWei = Math.floor(executionPrice * 0.006 * 1000000000000000000);
+          const executionPriceInWei = Math.floor(executionPrice * 0.01 * 1000000000000000000);
           // change $ -> ETH del 12 maggio 2020
-          const resultObj = {
-            result: lambdaResult,
-            duration: billedDuration,
-            price: executionPriceInWei,
-          };
 
           aws.getFunctionData(funcName)
             .then((dataFun) => {
-              const devFee = dataFun.funcPrice;
+              const { devFee } = dataFun;
               const devAddress = dataFun.funcOwner;
+              const resultObj = {
+                result: lambdaResult,
+                duration: billedDuration,
+                price: executionPriceInWei + devFee,
+              };
               if (billedDuration === aws.getTimemout(funcName)) {
                 aws.updateRecord(funcName, devAddress)
                   .then(() => {
@@ -96,12 +96,12 @@ smartHandler.listenRunRequest(
                   }).catch(() => {
                     log.error('[server] Can\'t update DB record');
                   });
-              } else{
+              } else {
                 smartHandler.sendRunResult(JSON.stringify(resultObj),
-                executionPriceInWei,
-                devFee,
-                devAddress,
-                opToken)
+                  executionPriceInWei,
+                  devFee,
+                  devAddress,
+                  opToken)
                   .then()
                   .catch((err) => {
                     log.error(`[server] Failed sending results ${err}`);
@@ -161,11 +161,11 @@ app.post('/deploy', (req, res) => {
               .then(() => {
                 log.info('Function deployed.');
                 const awsTier = 0.0000002083; // for lambda function with 128 MB cpu environment
-                const price = (funcDataObj.timeout)
+                const price = (funcDataObj.timeout + 5)
                   * (128 / 1024)
                   * awsTier
                   * 1.1;
-                let priceInWei = Math.floor(price * 0.006 * 1000000000000000000);
+                let priceInWei = Math.floor(price * 0.01 * 1000000000000000000);
                 priceInWei += funcDataObj.fee;
                 smartHandler.terminateDeploy(funcName,
                   tokens[proof].devAddress,

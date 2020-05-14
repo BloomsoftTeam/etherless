@@ -4,13 +4,15 @@ import { InfuraProvider } from 'ethers/providers';
 import fs from 'fs';
 import path from 'path';
 import prompt from 'prompt';
-import log from './common/Logger';
+import chalk from 'chalk';
+import boxen from 'boxen';
 import EthersHelper from './common/EthersHelper';
 import TokenManager from './common/TokenManager';
 import { ServerManager } from './ServerManager';
 import { EthereumManager, ContractAddressesInterface } from './EthereumManager';
 import KeyManager from './KeyManager';
 import { EtherlessClient } from './EtherlessClient';
+
 
 dotenv.config({ path: path.resolve(__dirname, '.env') });
 
@@ -62,15 +64,15 @@ function buildClient(opts: ClientOption): EtherlessClient {
 
 function printResult(result: any) {
   if (result.message === 'Internal server error') {
-    log.info('Function not found');
+    console.log(chalk.red.bold('Function not found'));
     return;
   }
   result.forEach((item) => {
-    log.info(`Name: ${item.funcName}`);
-    log.info(`Desc: ${item.description}`);
-    log.info(`Price: ${item.price}`);
-    log.info(`Params: ${item.params}`);
-    log.info(`Usage: ${item.usage}\n`);
+    console.log(chalk.hex('#00ffff').bold(`Name: ${item.funcName}`));
+    console.log(chalk.hex('#ffd700').bold(`Desc: ${item.description}`));
+    console.log(chalk.hex('#ffd700').bold(`Price: ${item.price}`));
+    console.log(chalk.hex('#ffd700').bold(`Params: ${item.params}`));
+    console.log(chalk.hex('#ffd700').bold(`Usage: ${item.usage}\n`));
   });
 }
 
@@ -89,16 +91,16 @@ function insertPassword(): Promise<string> {
         },
       },
     };
-    log.info('Insert a new password for your Etherless account, and confirm again your password.');
+    console.log('Insert a new password for your Etherless account, and confirm again your password.');
     prompt.start();
     prompt.get(passwordSchema, (err, result) => {
       if (result.password !== result.passwordRepeat) {
-        log.info('Mismatch between password and his repetition.');
+        console.log(chalk.red.bold('Mismatch between password and his repetition.'));
         reject();
         prompt.stop();
         return;
       }
-      log.info('Password created successfully.');
+      console.log(chalk.green.bold('Password created successfully.'));
       prompt.stop();
       resolve(result.password);
     });
@@ -116,7 +118,7 @@ function askPassword(): Promise<string> {
         },
       },
     };
-    log.info('Enter the password for your Etherless account.');
+    console.log('Enter the password for your Etherless account.');
     prompt.start();
     prompt.get(passwordSchema, (err, result) => {
       if (err) {
@@ -128,8 +130,19 @@ function askPassword(): Promise<string> {
   });
 }
 
+
 function initOrCreateWallet() {
-  log.info('Do you want to link an existing ETH wallet or create a new one? [link/create] ');
+  const boxenOptions = {
+    padding: 1,
+    margin: 1,
+    borderColor: '#90ee90',
+    // backgroundColor: '#555555',
+  };
+  const msgInit = chalk.hex('#ffb6c1').bold('Welcome to Etherless! Lets you associate an ETH wallet to Etherless!');
+  const msgBoxInit = boxen(msgInit, boxenOptions);
+  console.log(msgBoxInit);
+
+  console.log('Do you want to link an existing ETH wallet or create a new one? [link/create] ');
   prompt.get((['answer']), (err1, result1) => {
     const client = buildClient(<ClientOption> { smart: true });
     let wallet = null;
@@ -142,24 +155,24 @@ function initOrCreateWallet() {
             const keyManager = new KeyManager(password);
             keyManager.saveCredentials(wallet.privateKey, wallet.address)
               .then(() => {
-                log.info('A new ethereum wallet is now ready for you!');
-                log.info('Take notes of your newly generated mnemonic and private key so that you can recover your credentials in the future.');
-                log.info(`Private key: ${wallet.privateKey}`);
-                log.info(`Mnemonic: ${wallet.mnemonic}`);
-                log.info(`Wallet address: ${wallet.address}`);
+                console.log(chalk.green.bold('A new ethereum wallet is now ready for you!'));
+                console.log('Take notes of your newly generated mnemonic and private key so that you can recover your credentials in the future.');
+                console.log(`Private key: ${wallet.privateKey}`);
+                console.log(`Mnemonic: ${wallet.mnemonic}`);
+                console.log(`Wallet address: ${wallet.address}`);
                 prompt.stop();
               })
               .catch(() => {
-                log.error('Cannot save credentials.');
+                console.error(chalk.red.bold('Cannot save credentials.'));
               });
           })
           .catch(() => {
-            log.error('Password doesn\'t match required schema:\n-At least 8 characters and a maximum of 16.');
+            console.error(chalk.red.bold('Password doesn\'t match required schema:\n-At least 8 characters and a maximum of 16.'));
           });
         break;
       case 'l':
       case 'link':
-        log.info('Insert your eth wallet private key:');
+        console.log('Insert your eth wallet private key:');
         prompt.get((['key']), (err2, result2) => {
           wallet = client.linkWalletWithKey(result2.key);
           if (wallet) {
@@ -168,26 +181,26 @@ function initOrCreateWallet() {
                 const keyManager = new KeyManager(password);
                 keyManager.saveCredentials(wallet.privateKey, wallet.address)
                   .then(() => {
-                    log.info(`[cli] Wallet address: ${wallet.address}`);
-                    log.info('[cli] credentials associated with success.');
+                    console.log(chalk.green.bold(`[cli] Wallet address: ${wallet.address}`));
+                    console.log(chalk.green.bold('[cli] credentials associated with success.'));
                     prompt.stop();
                   }).catch((err3) => {
                     prompt.stop();
-                    log.error(err3);
+                    console.error(chalk.red.bold(err3));
                   });
               })
               .catch(() => {
-                log.error('Password doesn\'t match required schema:\n-At least 8 characters and a maximum of 16.');
+                console.error(chalk.red.bold('Password doesn\'t match required schema:\n-At least 8 characters and a maximum of 16.'));
                 prompt.stop();
               });
           } else {
-            log.error('Error in the association between your private key and the wallet (maybe you inserted a wrong private key?)');
+            console.error(chalk.red.bold('Error in the association between your private key and the wallet (maybe you inserted a wrong private key?)'));
             prompt.stop();
           }
         });
         break;
       default:
-        log.info('Invalid answer.');
+        console.log(chalk.red.bold('Invalid answer.'));
         prompt.stop();
         break;
     }
@@ -198,20 +211,20 @@ function initFunction() {
   const keyManager = new KeyManager();
   keyManager.checkCredentialsExistance()
     .then(() => {
-      log.info('You already have an associated wallet. Do you want to procede anyway? [y/n]');
+      console.log('You already have an associated wallet. Do you want to procede anyway? [y/n]');
       prompt.start();
       prompt.get(['answer'], (err, result) => {
-        log.info(result.answer);
+        console.log(result.answer);
         switch (result.answer.toLowerCase()) {
           case 'y':
             initOrCreateWallet();
             break;
           case 'n':
-            log.info('Operation interrupted with success.');
+            console.log('Operation interrupted with success.');
             prompt.stop();
             break;
           default:
-            log.info('Error: invalid answer.');
+            console.log(chalk.red.bold('Error: invalid answer.'));
             prompt.stop();
             break;
         }
@@ -239,22 +252,22 @@ function deployFunction(argv) {
           keyManager.loadCredentials()
             .then((key) => {
               const wallet = client.linkWalletWithKey(key);
-              log.info(`Getting wallet from credentials: ${wallet.address}`);
+              console.log(`Getting wallet from credentials: ${wallet.address}`);
               const zipFile = fs.readFileSync(`${funcName}.zip`);
               const funcData = JSON.parse((fs.readFileSync(`${funcName}.json`)).toString());
               funcData.owner = wallet.address;
               client.deployFunction(funcName, zipFile, Buffer.from(JSON.stringify(funcData)))
                 .then(() => {
-                  log.info('The function was successfully uploaded to the platform and is now available to be executed.');
+                  console.log(chalk.green.bold('The function was successfully uploaded to the platform and is now available to be executed.'));
                 })
-                .catch(log.error);
+                .catch(console.error);
             })
-            .catch((err) => {log.info(`Cannot load your credentials. ${err}`)});
+            .catch((err) => {console.error(`Cannot load your credentials. ${err}`)});
         })
-        .catch(log.error);
+        .catch(console.error);
     })
     .catch(() => {
-      log.info('To access the deploy service you need to associate a payment method.');
+      console.log(chalk.red.bold('To access the deploy service you need to associate a payment method.'));
     });
 }
 
@@ -262,10 +275,18 @@ function logout() {
   const keyManager = new KeyManager();
   keyManager.removeCredentials()
     .then(() => {
-      log.info('You have successfully removed the previously associated payment method.');
+      const boxenOptions = {
+        padding: 1,
+        margin: 1,
+        borderColor: 'red',
+        // backgroundColor: '#555555',
+      };
+      const msgLogout = chalk.hex('#ffd700').bold('You have successfully removed the previously associated payment method.');
+      const msgBoxLogout = boxen(msgLogout, boxenOptions);
+      console.log(msgBoxLogout);
     })
     .catch((err) => {
-      log.info(`Cannot remove credentials: ${err}`);
+      console.log(chalk.red.bold(`Cannot remove credentials: ${err}`));
     });
 }
 
@@ -294,26 +315,26 @@ function runFunction(argv) {
           keyManager.loadCredentials()
             .then((key) => {
               const wallet = client.linkWalletWithKey(key);
-              log.info(`Getting wallet from credentials: ${wallet.address}`);
+              console.log(`Getting wallet from credentials: ${wallet.address}`);
               client.runFunction(funcName, JSON.stringify(paramsJson)) // TODO: wallet vuoto
                 .then((jsonresult: any) => {
                   const result = JSON.parse(jsonresult);
-                  log.info(`Result: ${result.result}`);
-                  log.info(`Execution time: ${result.duration} ms`);
-                  log.info(`Price: ${result.price} Wei`);
+                  console.log(chalk.green.bold(`Result: ${result.result}`));
+                  console.log(`Execution time: ${result.duration} ms`);
+                  console.log(`Price: ${result.price} Wei`);
                 })
                 .catch((err) => {
-                  log.info(`Cannot run function. ${err}`);
+                  console.log(chalk.red.bold(`Cannot run function. ${err}`));
                 });
             })
             .catch(() => {
-              log.info('Could not load your payment method because you didn\'t associate one yet.');
+              console.log(chalk.red.bold('Could not load your payment method because you didn\'t associate one yet.'));
             });
         })
         .catch(() => {});
     })
     .catch(() => {
-      log.info('To access the run service you need to associate a payment method.');
+      console.log(chalk.red.bold('To access the run service you need to associate a payment method.'));
     });
 }
 
@@ -331,11 +352,11 @@ function listFunction(argv) {
           .then((res: any) => {
             printResult(res);
           }).catch(() => {
-            log.error('Can\'t retrieve data from database. Check your connection and try again (if problem doesn\'t solve, please contact us).');
+            console.error(chalk.red.bold('Can\'t retrieve data from database. Check your connection and try again (if problem doesn\'t solve, please contact us).'));
           });
       })
       .catch(() => {
-        log.error('Cannot find your functions cause you didn\'t associated a payment method into etherless.');
+        console.error(chalk.red.bold('Cannot find your functions cause you didn\'t associated a payment method into etherless.'));
       });
   } else {
     opt.hidden = (argv.hidden !== undefined);
@@ -344,7 +365,7 @@ function listFunction(argv) {
       .then((res: any) => {
         printResult(res);
       }).catch(() => {
-        log.error('Can\'t retrieve data from database. Check your connection and try again (if problem doesn\'t solve, please contact us).');
+        console.error(chalk.red.bold('Can\'t retrieve data from database. Check your connection and try again (if problem doesn\'t solve, please contact us).'));
       });
   }
 }
@@ -358,7 +379,7 @@ function searchFunction(argv) {
     .then((res: any) => {
       printResult(res);
     }).catch(() => {
-      log.error('Can\'t retrieve data from database. Check your connection and try again (if problem doesn\'t solve, please contact us).');
+      console.error(chalk.red.bold('Can\'t retrieve data from database. Check your connection and try again (if problem doesn\'t solve, please contact us).'));
     });
 }
 
@@ -376,26 +397,26 @@ function deleteFunction(argv) {
           keyManager.loadCredentials()
             .then((key) => {
               const wallet = client.linkWalletWithKey(key);
-              log.info(`Getting wallet from credentials: ${wallet.address}`);
+              console.log(`Getting wallet from credentials: ${wallet.address}`);
               client.deleteFunction(funcName)
                 .then(() => {
                   // viene restituito null sia che venga eliminata che non
-                  log.info(`You have successfully removed the function ${funcName} from the platform.`);
+                  console.log(chalk.green.bold(`You have successfully removed the function ${funcName} from the platform.`));
                 })
                 .catch(() => {
-                  log.info('This function may not exist or you are not allowed delete this function.');
+                  console.log(chalk.red.bold('This function may not exist or you are not allowed delete this function.'));
                   process.exit(0);
                 });
             })
             .catch((err) => {
               // errore della chiave
-              log.error(err);
+              console.error(err);
             });
         })
-        .catch(log.error);
+        .catch(console.error);
     })
     .catch(() => {
-      log.info('To access the delete service you need to associate a payment method.');
+      console.log(chalk.red.bold('To access the delete service you need to associate a payment method.'));
     });
 }
 
@@ -403,67 +424,67 @@ function helpFunction(argv) {
   if (argv.command) {
     switch (argv.command) {
       case 'init': {
-        log.info('usage: etherless init');
-        log.info('Allows the user to associate a payment method to the platform by eithercreating a new ETH wallet or associating an existing one. The wallet will let the user access all paid services.');
+        console.log('usage: etherless init');
+        console.log('Allows the user to associate a payment method to the platform by eithercreating a new ETH wallet or associating an existing one. The wallet will let the user access all paid services.');
         break;
       }
       case 'list': {
-        log.info('usage: etherless list [--own | -o] [--hidden | -h]');
-        log.info('Lists all available functions available in the platform with their respective description, usage and price.\n --own, -o list all functions owned by the user\n --hidden, -h list all unavailable functions on the platform.');
+        console.log('usage: etherless list [--own | -o] [--hidden | -h]');
+        console.log('Lists all available functions available in the platform with their respective description, usage and price.\n --own, -o list all functions owned by the user\n --hidden, -h list all unavailable functions on the platform.');
         break;
       }
       case 'deploy': {
-        log.info('usage: etherless deploy <funcName');
-        log.info('Allows the developer to deploy a function to the platform with its source code and a configuration file for the meta data.\nYou need a <funcName.zip> and a <funcName.json> in the same directory you are invoking the command to make it work correctly.');
+        console.log('usage: etherless deploy <funcName');
+        console.log('Allows the developer to deploy a function to the platform with its source code and a configuration file for the meta data.\nYou need a <funcName.zip> and a <funcName.json> in the same directory you are invoking the command to make it work correctly.');
         break;
       }
       case 'run': {
-        log.info('usage: etherless run <funcName> <args>');
-        log.info('Allows the user to execute a function available on the platform specifying all needed parameters.');
+        console.log('usage: etherless run <funcName> <args>');
+        console.log('Allows the user to execute a function available on the platform specifying all needed parameters.');
         break;
       }
       case 'search': {
-        log.info('usage: etherless search <keyword>');
-        log.info('Lists all available functions on the platform matching the keyword specified with the description of the functions.');
+        console.log('usage: etherless search <keyword>');
+        console.log('Lists all available functions on the platform matching the keyword specified with the description of the functions.');
         break;
       }
       case 'delete': {
-        log.info('usage: etherless delete <funcName>');
-        log.info('Allows the developer to delete a function available on the platform.');
+        console.log('usage: etherless delete <funcName>');
+        console.log('Allows the developer to delete a function available on the platform.');
         break;
       }
       case 'logout': {
-        log.info('usage: etherless logout');
-        log.info('Allows the user to remove the previously associated payment method.');
+        console.log('usage: etherless logout');
+        console.log('Allows the user to remove the previously associated payment method.');
         break;
       }
       case 'createConfig': {
-        log.info('usage: etherless createConfig');
-        log.info('Creates a JSON file in Download folder with empty parameters to configure the deploy of a function:\n funcName: the name of the function\n description: the description of the function\n timeout: the maximum execution time of the function\n owner: the address of the developer\n fee: the amount of money earned for every successful execution\n path: the relative path in which the function will be run.');
+        console.log('usage: etherless createConfig');
+        console.log('Creates a JSON file in Download folder with empty parameters to configure the deploy of a function:\n funcName: the name of the function\n description: the description of the function\n timeout: the maximum execution time of the function\n owner: the address of the developer\n fee: the amount of money earned for every successful execution\n path: the relative path in which the function will be run.');
         break;
       }
       default: {
-        log.info('Command not found.');
+        console.log(chalk.red.bold('Command not found.'));
         break;
       }
     }
   } else if (argv.faq) {
-    log.info('These are the Frequently Asked Questions fromt the community of the platform: \n - Question 1? \n - Answer 1. \n - Question 2? \n - Answer 2. \n If you still have some concerns, please get in touch with us at bloomsoft@gmail.com');
+    console.log('These are the Frequently Asked Questions fromt the community of the platform: \n - Question 1? \n - Answer 1. \n - Question 2? \n - Answer 2. \n If you still have some concerns, please get in touch with us at bloomsoft@gmail.com');
   } else if (argv.about_us) {
-    log.info('We are Bloomsoft, a team of young students from Italy. We started working on Ertherless in 2019 as an academic project and then we sold it for a millionaire exit, so if you need some support sorry, but we’re on holiday on the Caribbean for the rest of our life!');
+    console.log('We are Bloomsoft, a team of young students from Italy. We started working on Ertherless in 2019 as an academic project and then we sold it for a millionaire exit, so if you need some support sorry, but we’re on holiday on the Caribbean for the rest of our life!');
   } else {
-    log.info('Usage: etherless <command> [--option | -op] [<args>]');
-    log.info('\n');
-    log.info('Commands:');
-    log.info('init allows the user associate a payment method by either creating a new ETH wallet or associating an existing one.');
-    log.info('list lists all available functions on the platform that can be executed from the user.');
-    log.info('deploy allows the developer deploy a function to the platform.');
-    log.info('run allows the user execute a function available in the platform.');
-    log.info('search allows the user search for a specific function based on a specified keyword.');
-    log.info('delete allows the developer delete one of its function available in the platform.');
-    log.info('logout allows the user delete the previously associated payment method.');
-    log.info('createConfig create a configuration file needed to deploy a function to the platform.');
-    log.info('’etherless get_help --command’ and ’etherless get_help -c’ show an accurate description for the selected command.');
+    console.log('Usage: etherless <command> [--option | -op] [<args>]');
+    console.log('\n');
+    console.log('Commands:');
+    console.log('init allows the user associate a payment method by either creating a new ETH wallet or associating an existing one.');
+    console.log('list lists all available functions on the platform that can be executed from the user.');
+    console.log('deploy allows the developer deploy a function to the platform.');
+    console.log('run allows the user execute a function available in the platform.');
+    console.log('search allows the user search for a specific function based on a specified keyword.');
+    console.log('delete allows the developer delete one of its function available in the platform.');
+    console.log('logout allows the user delete the previously associated payment method.');
+    console.log('createConfig create a configuration file needed to deploy a function to the platform.');
+    console.log('’etherless get_help --command’ and ’etherless get_help -c’ show an accurate description for the selected command.');
   }
 }
 
@@ -482,10 +503,10 @@ function createConfigFunction() {
   try {
     fs.writeFileSync('funcData.json', JSON.stringify(obj));
   } catch (err) {
-    log.error(err);
+    console.error(chalk.red.bold(err));
     return;
   }
-  log.info('File created!');
+  console.log(chalk.green.bold('File created!'));
 }
 
 const listOptions = (ya) => ya
@@ -523,42 +544,42 @@ const verifyArguments = (argv) => {
 
   switch (commandName) {
     case 'init':
-      if (argv._.length !== 1) throw (new Error('Argument check failed: too much arguments for command init.'));
+      if (argv._.length !== 1) throw (new Error(chalk.red.bold('Argument check failed: too much arguments for command init.')));
       break;
     case 'logout':
-      if (argv._.length !== 1) throw (new Error('Argument check failed: too much arguments for command logout.'));
+      if (argv._.length !== 1) throw (new Error(chalk.red.bold('Argument check failed: too much arguments for command logout.')));
       break;
     case 'run':
-      if (argv._.length < 2) throw (new Error('Argument check failed: too few arguments for command run.'));
+      if (argv._.length < 2) throw (new Error(chalk.red.bold('Argument check failed: too few arguments for command run.')));
       break;
     case 'list': {
-      if (argv._.length !== 1) throw (new Error('Argument check failed: too much arguments for command list.'));
-      if (argv.r && (argv.o || argv.h)) throw (new Error('Argument check failed: no more than one parameter can be specified for the list command.'));
-      if (argv.o && (argv.r || argv.h)) throw (new Error('Argument check failed: no more than one parameter can be specified for the list command.'));
-      if (argv.h && (argv.o || argv.r)) throw (new Error('Argument check failed: no more than one parameter can be specified for the list command.'));
+      if (argv._.length !== 1) throw (new Error(chalk.red.bold('Argument check failed: too much arguments for command list.')));
+      if (argv.r && (argv.o || argv.h)) throw (new Error(chalk.red.bold('Argument check failed: no more than one parameter can be specified for the list command.')));
+      if (argv.o && (argv.r || argv.h)) throw (new Error(chalk.red.bold('Argument check failed: no more than one parameter can be specified for the list command.')));
+      if (argv.h && (argv.o || argv.r)) throw (new Error(chalk.red.bold('Argument check failed: no more than one parameter can be specified for the list command.')));
       break;
     }
     case 'deploy':
-      if (argv._.length !== 2) throw (new Error('Argument check failed: wrong number of arguments for command deploy (only funcName is required).'));
+      if (argv._.length !== 2) throw (new Error(chalk.red.bold('Argument check failed: wrong number of arguments for command deploy (only funcName is required).')));
       break;
     case 'delete':
-      if (argv._.length !== 2) throw (new Error('Argument check failed: wrong number of arguments for command delete.'));
+      if (argv._.length !== 2) throw (new Error(chalk.red.bold('Argument check failed: wrong number of arguments for command delete.')));
       break;
     case 'search':
-      if (argv._.length !== 2) throw (new Error('Argument check failed: wrong number of arguments for command search.'));
+      if (argv._.length !== 2) throw (new Error(chalk.red.bold('Argument check failed: wrong number of arguments for command search.')));
       break;
     case 'get_help': {
-      if (argv._.length !== 1) throw (new Error('Argument check failed: too much arguments for command get_help.'));
-      if (argv.f && (argv.c || argv.a)) throw (new Error('Argument check failed: no more than one parameter can be specified for the get_help command.'));
-      if (argv.c && (argv.f || argv.a)) throw (new Error('Argument check failed: no more than one parameter can be specified for the get_help command.'));
-      if (argv.a && (argv.c || argv.f)) throw (new Error('Argument check failed: no more than one parameter can be specified for the get_help command.'));
+      if (argv._.length !== 1) throw (new Error(chalk.red.bold('Argument check failed: too much arguments for command get_help.')));
+      if (argv.f && (argv.c || argv.a)) throw (new Error(chalk.red.bold('Argument check failed: no more than one parameter can be specified for the get_help command.')));
+      if (argv.c && (argv.f || argv.a)) throw (new Error(chalk.red.bold('Argument check failed: no more than one parameter can be specified for the get_help command.')));
+      if (argv.a && (argv.c || argv.f)) throw (new Error(chalk.red.bold('Argument check failed: no more than one parameter can be specified for the get_help command.')));
       break;
     }
     case 'createConfig':
-      if (argv._.length !== 1) throw (new Error('Argument check failed: too much arguments for command createConfig.'));
+      if (argv._.length !== 1) throw (new Error(chalk.red.bold('Argument check failed: too much arguments for command createConfig.')));
       break;
     default:
-      throw new Error('Argument check failed: command not found.');
+      throw new Error(chalk.red.bold('Argument check failed: command not found.'));
   }
   return true;
 };

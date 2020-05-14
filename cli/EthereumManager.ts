@@ -76,7 +76,6 @@ class EthereumManager implements EthereumManagerInterface {
 
   getDeployFee(): Promise<number> {
     return new Promise((resolve, reject) => {
-      // TODO: non pescare da env qui
       this.ethersHelper.loadSmartContract(this.contracts.deploy, this.wallet)
         .then((deployContract) => {
           deployContract.getDeployFee()
@@ -92,7 +91,6 @@ class EthereumManager implements EthereumManagerInterface {
         reject(new Error('[EthereumManager]\twallet is not set'));
         return;
       }
-      // TODO: non pescare da env qui
       this.ethersHelper.loadSmartContract(this.contracts.deploy, this.wallet)
         .then((deployContract) => {
           deployContract.getDeployFee()
@@ -146,7 +144,6 @@ class EthereumManager implements EthereumManagerInterface {
 
   getFuncPrice(funcName: string): Promise<number> {
     return new Promise((resolve, reject) => {
-      // TODO: non pescare da env qui
       this.ethersHelper.loadSmartContract(this.contracts.run, this.wallet)
         .then((runContract) => {
           runContract.getFuncPrice(funcName).then(resolve).catch(reject);
