@@ -135,7 +135,7 @@ class EtherlessClient implements EtherlessClientInterface {
             });
         })
         .catch((err) => { 
-          spinner.fail('Run failed');
+          spinner.fail(`${err}`);
           reject(new Error('Your wallet doesn\'t have sufficient founds for executing this command.'));
         });
     });

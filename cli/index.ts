@@ -229,6 +229,7 @@ function deployFunction(argv) {
 
   keyManager.checkCredentialsExistance()
     .then(() => {
+      // check controllo se ha soldi
       askPassword()
         .then((password) => {
           const client = buildClient(<ClientOption> { smart: true, server: true, token: true });
@@ -248,7 +249,7 @@ function deployFunction(argv) {
                 })
                 .catch(log.error);
             })
-            .catch(log.error);
+            .catch((err) => {log.info(`Cannot load your credentials. ${err}`)});
         })
         .catch(log.error);
     })
@@ -301,8 +302,8 @@ function runFunction(argv) {
                   log.info(`Execution time: ${result.duration} ms`);
                   log.info(`Price: ${result.price} Wei`);
                 })
-                .catch(() => {
-                  log.info('Cannot run function.');
+                .catch((err) => {
+                  log.info(`Cannot run function. ${err}`);
                 });
             })
             .catch(() => {

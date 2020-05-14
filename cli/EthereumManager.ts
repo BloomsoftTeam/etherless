@@ -166,12 +166,20 @@ class EthereumManager implements EthereumManagerInterface {
                 { value: price, gasLimit: 900000 },
               )
                 .then(() => {
+                  console.log(`${price}`);
                   resolve();
                 })
-                .catch(reject);
-            }).catch(reject);
+                .catch((err) => {
+                  reject(new Error(`Cannot send run request ${price}`))
+                });
+            })
+            .catch((err) => {
+            reject(new Error('Cannot check func price'))
+            });
         })
-        .catch(reject);
+        .catch((err) => {
+          reject(new Error('Cannot load smart contract'))
+        });
     });
   }
 
