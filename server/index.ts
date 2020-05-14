@@ -159,12 +159,12 @@ app.post('/deploy', (req, res) => {
               .then(() => {
                 log.info('Function deployed.');
                 const awsTier = 0.0000002083; // for lambda function with 128 MB cpu environment
-                const price = (funcDataObj.timeout / 1000)
+                const price = (funcDataObj.timeout)
                   * (128 / 1024)
                   * awsTier
-                  * 1.1
-                  + funcDataObj.fee;
-                const priceInWei = Math.floor(price * 0.006 * 1000000000000000000);
+                  * 1.1;
+                let priceInWei = Math.floor(price * 0.006 * 1000000000000000000);
+                priceInWei += funcDataObj.fee;
                 smartHandler.terminateDeploy(funcName,
                   tokens[proof].devAddress,
                   priceInWei,
