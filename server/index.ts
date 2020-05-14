@@ -96,15 +96,17 @@ smartHandler.listenRunRequest(
                   }).catch(() => {
                     log.error('[server] Can\'t update DB record');
                   });
-              }
-              smartHandler.sendRunResult(JSON.stringify(resultObj),
+              } else{
+                smartHandler.sendRunResult(JSON.stringify(resultObj),
                 executionPriceInWei,
                 devFee,
                 devAddress,
                 opToken)
-                .catch((err) => {
-                  log.error(`[server] Failed sending results ${err}`);
-                });
+                  .then()
+                  .catch((err) => {
+                    log.error(`[server] Failed sending results ${err}`);
+                  });
+              }
             })
             .catch((err) => {
               log.error(`[server] AWS search query failed with error ${err}`);
