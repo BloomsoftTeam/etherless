@@ -101,6 +101,7 @@ class AWSManager implements AWSManagerInterface {
         }
 
         if (data.Items) {
+          console.log(data.Items[0]);
           resolve(<FunctionDataInterface> {
             devFee: data.Items[0].devFee,
             funcPrice: data.Items[0].price,
