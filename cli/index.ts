@@ -296,7 +296,7 @@ function runFunction(argv) {
                   log.info(`Price: ${result.price} Wei`);
                 })
                 .catch(() => {
-                  log.info('Cannot run function. It may not exist or may not be available.');
+                  log.info('Cannot run function.');
                 });
             })
             .catch(() => {
