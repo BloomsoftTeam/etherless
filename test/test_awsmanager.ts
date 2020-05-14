@@ -2,16 +2,16 @@ import { expect, assert } from 'chai';
 import { describe, it } from 'mocha';
 import AWSManager from '../server/AWSManager';
 import AWS from 'aws-sdk';
-import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
 
-dotenv.config();
-
-// serve il .env del server dentro la cartella test, e dentro la cartella etherless
+// se li pesca dai secret di github, in locale fa undefined
 const AWS_ID = process.env.AWS_ID;
 const AWS_KEY= process.env.AWS_KEY;
 const AWS_LAMBDA_ROLE = process.env.AWS_LAMBDA_ROLE;
+// console.log(AWS_ID);
+// console.log(AWS_KEY);
+// console.log(AWS_LAMBDA_ROLE);
 const config = new AWS.Config({
   accessKeyId: AWS_ID,
   secretAccessKey: AWS_KEY,
