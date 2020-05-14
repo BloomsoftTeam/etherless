@@ -159,7 +159,7 @@ app.post('/deploy', (req, res) => {
                   * (128 / 1024)
                   * awsTier
                   * 1.1;
-                var priceInWei = Math.floor(price * 0.01 * 1^18);
+                var priceInWei = Math.floor(price * 0.01 * (10**18));
                 console.log(priceInWei);
                 console.log(funcDataObj.fee);
                 priceInWei = Number(priceInWei) + Number(funcDataObj.fee);
