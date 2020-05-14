@@ -96,12 +96,12 @@ smartHandler.listenRunRequest(
                   }).catch(() => {
                     log.error('[server] Can\'t update DB record');
                   });
-              } else{
+              } else {
                 smartHandler.sendRunResult(JSON.stringify(resultObj),
-                executionPriceInWei,
-                devFee,
-                devAddress,
-                opToken)
+                  executionPriceInWei,
+                  devFee,
+                  devAddress,
+                  opToken)
                   .then()
                   .catch((err) => {
                     log.error(`[server] Failed sending results ${err}`);
