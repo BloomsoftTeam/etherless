@@ -118,7 +118,7 @@ class KeyManager {
         fs.unlinkSync(this.walletPath);
         resolve();
       } catch (err) {
-        reject(err);
+        reject(new Error(`no such file or directory`));
       }
     });
   }

@@ -68,7 +68,6 @@ class ServerManager {
         .catch((err) => {
           reject(err);
         });
-      // reject(new Error('not implemented'));
     });
   }
 

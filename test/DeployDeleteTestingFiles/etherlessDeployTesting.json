@@ -1,1 +1,1 @@
-{"funcName":"EtherlessDeployTesting","description":"Testing di prova","timeout":"20","owner":"TestingAdminAddress","fee":"1000000","indexPath":"etherlessDeployTesting/index.js","usage":"Don't call, that's for unit test","params":"none"}
+{"funcName":"EtherlessDeployTesting","description":"Testing di prova","timeout":"20","owner":"TestingAdminAddress","fee":"1000000","indexPath":"etherlessDeployTesting/index","usage":"Don't call, that's for unit test","params":"none"}
