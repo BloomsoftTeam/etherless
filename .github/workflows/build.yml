@@ -63,6 +63,9 @@ jobs:
       env:
         ADMIN_WALLET_KEY: ${{ secrets.ADMIN_WALLET_KEY }}
         TEST_WALLET_KEY: ${{ secrets.TEST_WALLET_KEY }}
+        AWS_ID: ${{ secrets.AWS_ID }}
+        AWS_KEY: ${{ secrets.AWS_KEY }}
+        AWS_LAMBDA_ROLE: ${{ secrets.AWS_LAMBDA_ROLE }}
 
     - name: Setup sonarqube
       uses: warchant/setup-sonar-scanner@v1

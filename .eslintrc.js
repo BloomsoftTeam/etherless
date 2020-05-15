@@ -20,6 +20,9 @@ module.exports = {
                 'extensions': [".js",".jsx",".ts",".tsx"]
             }
         }
-    }
+    },
+  "rules": {
+    'no-console': 'off'
+  }
  }
 
