@@ -40,19 +40,6 @@ export interface ListenPromiseInterface {
   promise: Promise<string>;
 }
 
-export interface ContractAddressesInterface {
-  storage: string;
-  deploy: string;
-  run: string;
-  remove: string;
-
-}
-
-export interface DeletePromiseInterface {
-  terminate: any;
-  promise: Promise<string>;
-}
-
 class EthereumManager implements EthereumManagerInterface {
   readonly ethersHelper: EthersHelper;
 
