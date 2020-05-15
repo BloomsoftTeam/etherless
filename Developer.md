@@ -25,4 +25,18 @@ This section refer to the deploy of ```etherless DynamoDB table```, ```API Gatew
 TODO
 
 ## Deploy of Smart Contracts
-TODO
+The @openzeppelin/cli npm module is needed to handle the lifecycle of smart contracts.
+After you install it, you can create a new open zeppelin project with the command "oz init", which then asks you for a project name and a version number.
+That command will initialize the directory creating a "contracts" and a ".openzeppelin" directory.
+Once you've done that, you need to initialize the directory as a nodejs projects too, using the command "npm init -y", which will create a "package.json" file.
+Now, all you need to do is to create a "networks.js" file to specify the networks you want to your smaert contracts to interact with.
+Since we're working with upgradable smart contracts you also need to install the module @openzeppelin/upgrades and you also another module @openzeppelin/contracts-ethereum-package since we're inheriting the Ownable functionality provided by the Ownable contract defined by Open Zeppelin.
+You can install them with a single command "npm i --save-dev @openzeppelin/upgrades @openzeppelin/contracts-ethereum-package".
+Now, you're all set up and you can start interact with the smart contracts.
+
+First, you need to compile the smaert contracts with the command "oz compile".
+Then, you can deploy the contracts with the command "zo deploy" which will asks you which kind of contracts you're deploying (either upgradable or not) and then which network you want to deploy it in.
+At the end of the deployment, open zeppelin will ask you if you want to call a function of the contract (usually to let you call an initialize function).
+
+In the case of a deployment in a public network, you'll need to verify the contract after the deployment of it.
+All you need to do is calling the command "oz verify" then select the contract you want to verify and then the service you want to use to verify it (we're using the service etherscan).
