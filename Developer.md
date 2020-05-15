@@ -22,7 +22,9 @@ This section refer to the deploy of ```etherless DynamoDB table```, ```API Gatew
 - update the ```SERVER_EDGE``` in the ```.env``` file with the new prefix of ```API endpoint``` (if necessary), for example ```SERVER_EDGE=https://API_ID.execute-api.eu-west-2.amazonaws.com/dev/```.
 
 ## Deploy of AWS EC2 Istance
-TODO
+The server and serverless infrastructure can be deployed with the script in `automation/deploy.js`. It will generate a key pairs to connect to the new AWS EC2 machine and it will configure API Gateway and Lambda.
+Configure the environmnet variables `AWS_ID` and `AWS_KEY` in the AWS Lambda as the script is unable to do this automatically.
+We suggest to configure a DNS name with a CNAME pointing to the EC2 and API Gateway to ease further modifications in the system operations. This domain will be set in the `.env` of each client during release.
 
 ## Deploy of Smart Contracts
 The @openzeppelin/cli npm module is needed to handle the lifecycle of smart contracts.
