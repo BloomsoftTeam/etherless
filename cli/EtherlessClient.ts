@@ -143,7 +143,10 @@ class EtherlessClient implements EtherlessClientInterface {
                   reject(err);
                 });
             })
-            .catch(reject);
+            .catch((err) => {
+              spinner.fail('Run failed');
+              reject(err);
+            });
         })
         .catch((err) => {
           spinner.fail(`${err}`);
