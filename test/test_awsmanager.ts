@@ -148,7 +148,7 @@ describe('invokeLambda', () => {
   });
 });
 
-
+/* 
 describe('deleteFunction', () => {
   it('deleteFunction is working', (done) => {
     const lambdaParams = {
@@ -225,3 +225,4 @@ describe('deleteFunction', () => {
     });
   });
 });
+*/

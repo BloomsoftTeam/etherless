@@ -68,11 +68,11 @@ function printResult(result: any) {
     return;
   }
   result.forEach((item) => {
-    console.log(chalk.hex('#0000ff').bold(`Name:`) + chalk.hex('#00ffff').bold(`${item.funcName}`));
-    console.log(chalk.hex('#0000ff').bold(`Desc:`) + `${item.description}`);
-    console.log(chalk.hex('#0000ff').bold(`Price:`) + `${item.price}`);
-    console.log(chalk.hex('#0000ff').bold(`Params:`) + `${item.params}`);
-    console.log(chalk.hex('#0000ff').bold(`Usage:`) + `${item.usage}\n`);
+    console.log(chalk.hex('#52a2ff').bold(`Name:`) + chalk.hex('#00ffff').bold(`${item.funcName}`));
+    console.log(chalk.hex('#52a2ff').bold(`Desc:`) + `${item.description}`);
+    console.log(chalk.hex('#52a2ff').bold(`Price:`) + `${item.price}`);
+    console.log(chalk.hex('#52a2ff').bold(`Params:`) + `${item.params}`);
+    console.log(chalk.hex('#52a2ff').bold(`Usage:`) + `${item.usage}\n`);
   });
 }
 
@@ -260,7 +260,7 @@ function deployFunction(argv) {
                 .then(() => {
                   console.log(chalk.green.bold('The function was successfully uploaded to the platform and is now available to be executed.'));
                 })
-                .catch(console.error);
+                .catch(() => {});
             })
             .catch((err) => { console.error(`Cannot load your credentials. ${err}`); });
         })
