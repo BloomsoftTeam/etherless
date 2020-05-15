@@ -34,7 +34,4 @@ These commands are still free to execute, but they need an associated ```Ethereu
 ### Payment commands
 These commands require the user to have an associated ```Ethereum wallet```, without a minimum amount of empty balance, in order to work:
 - ```etherless deploy <funcName>```: Allows the developer to deploy a function to the platform with its source code and a configuration file for the meta data. You need a `<funcName.zip>` (containing the source code file and extra modules if needed) and a `<funcName.json>` (with the same properties of the ```etherless createConfig``` file) in the same directory you are invoking the command to make it work correctly;
-- ```etherless run <funcName> [parameters]```: Allows the user to execute a function available on the platform specifying all needed parameters.
-
-
-[Developer reference](https://github.com/1dotd4/etherless/blob/develop/Developer.md)
+- ```etherless run <funcName> [parameters]```: Allows the user to execute a function available on the platform specifying all needed parameters. 
