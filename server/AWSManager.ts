@@ -233,8 +233,7 @@ class AWSManager implements AWSManagerInterface {
     const duration = parseInt(logResult.substring(index + this.RunKeyword.length), 10);
     return duration;
   }
-
-
+  
   deleteFunction(funcName: string, devAddress: string): Promise<void> {
     return new Promise((resolve, reject) => {
       const DBparams = {
