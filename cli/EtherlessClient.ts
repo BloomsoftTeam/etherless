@@ -122,10 +122,10 @@ class EtherlessClient implements EtherlessClientInterface {
             .then(() => {
               // non fa nulla qui
             })
-            .catch(() => {
+            .catch((err) => {
               runPromise.terminate();
               spinner.fail('Run failed');
-              reject(new Error('It may not exist or may not be available.'));
+              reject(new Error(`It may not exist or may not be available. ${err}`));
             });
           spinner.text = 'Run request sent.';
           runPromise.promise
