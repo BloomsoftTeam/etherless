@@ -73,6 +73,7 @@ class EtherlessClient implements EtherlessClientInterface {
               .catch(() => {
                 deployPromise.terminate();
                 spinner.fail('deploy failed');
+                console.error('Unable to deploy function. You may not have enough ETH for this operation.');
                 reject();
               });
             spinner.text = 'waiting operation token';
@@ -89,7 +90,8 @@ class EtherlessClient implements EtherlessClientInterface {
                           resolve();
                         } else {
                           spinner.fail('deploy failed');
-                          reject(new Error(`[EtherlessClient]\tdeploy failed: ${result.error}`));
+                          console.error(`deploy failed: ${result.error}`);
+                          reject();
                         }
                       }).catch(reject);
                   }).catch(reject);

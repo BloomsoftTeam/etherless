@@ -101,11 +101,12 @@ class EthereumManager implements EthereumManagerInterface {
                 funcName,
                 { value: feeNumber, gasLimit: 900000 },
               )
-                .then(() => {
-                  resolve();
+                .then((event) => {
+                  event.wait()
+                    .then(resolve)
+                    .catch(reject);
                 })
                 .catch(reject);
-              resolve();
             })
             .catch(reject);
         })

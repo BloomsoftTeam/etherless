@@ -260,7 +260,7 @@ function deployFunction(argv) {
                 .then(() => {
                   console.log(chalk.green.bold('The function was successfully uploaded to the platform and is now available to be executed.'));
                 })
-                .catch(console.error);
+                .catch(() => {});
             })
             .catch((err) => { console.error(`Cannot load your credentials. ${err}`); });
         })
