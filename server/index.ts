@@ -25,6 +25,8 @@ const {
   AWS_LAMBDA_ROLE,
 } = process.env;
 
+const TIMEOUT_DELAY = 5000;
+
 const app = express();
 const aws = new AWSManager(AWS_ID, AWS_KEY, AWS_LAMBDA_ROLE);
 
@@ -58,74 +60,79 @@ interface TokenData {
 const tokens: { [id: string]: TokenData } = {};
 
 smartHandler.listenTokenRequests((reqToken: string, opToken: string, devAddress: string) => {
-  log.info('[server] Received tokens from blockchain to deploy.');
-  tokens[reqToken] = { devAddress, opToken };
-  log.info(tokens);
-  smartHandler.sendRequestUpload(opToken);
+  setTimeout(() => {
+    log.info('[server] Received tokens from blockchain to deploy.');
+    tokens[reqToken] = { devAddress, opToken };
+    log.info(tokens);
+    smartHandler.sendRequestUpload(opToken);
+  }, TIMEOUT_DELAY);
 });
 
 smartHandler.listenRunRequest(
   (opToken: string, funcName: string, params: string) => {
-    log.info('[server] Received token from blockchain to run.');
-    log.info('[server] Executing lambda.');
-    aws.invokeLambda(funcName, params)
-      .then((result) => {
-        log.info('[server] Got result from lambda.');
-        const lambdaResult = JSON.parse(result.Payload).body;
-        const logResultEncoded = result.LogResult;
-        const b = Buffer.from(logResultEncoded, 'base64');
-        const logResult = b.toString();
-        const billedDuration = aws.getExecutionTimeFrom(logResult);
-        const awsTier = 0.0000002083; // for lambda function with 128 MB cpu environment
-        const executionPrice = (billedDuration / 1000) * (128 / 1024) * awsTier * 1.1;
-        const executionPriceInWei = Math.floor(executionPrice * 0.01 * (10 ** 18));
-        // change $ -> ETH del 12 maggio 2020
+    setTimeout(() => {
+      log.info('[server] Received token from blockchain to run.');
+      log.info('[server] Executing lambda.');
+      aws.invokeLambda(funcName, params)
+        .then((result) => {
+          log.info('[server] Got result from lambda.');
+          const lambdaResult = JSON.parse(result.Payload).body;
+          const logResultEncoded = result.LogResult;
+          const b = Buffer.from(logResultEncoded, 'base64');
+          const logResult = b.toString();
+          const billedDuration = aws.getExecutionTimeFrom(logResult);
+          const awsTier = 0.0000002083; // for lambda function with 128 MB cpu environment
+          const executionPrice = (billedDuration / 1000) * (128 / 1024) * awsTier * 1.1;
+          const executionPriceInWei = Math.floor(executionPrice * 0.01 * (10 ** 18));
+          // change $ -> ETH del 12 maggio 2020
 
-        aws.getFunctionData(funcName)
-          .then((dataFun) => {
-            const { devFee } = dataFun;
-            const devAddress = dataFun.funcOwner;
-            const resultObj = {
-              result: lambdaResult,
-              duration: billedDuration,
-              price: executionPriceInWei + Number(devFee),
-            };
-            if (result.FunctionError) {
-              console.log(result.FunctionError);
-              aws.updateRecord(funcName, devAddress)
-                .then(() => {
-                  log.error('[server] Function Timeout overflow, set function to hidden');
-                  smartHandler.sendRunFailure(funcName, opToken)
-                    .catch((err) => {
-                      log.error(`[server] Failed sending results ${err}`);
-                    });
-                }).catch(() => {
-                  log.error('[server] Can\'t update DB record');
-                });
-            } else {
-              smartHandler.sendRunResult(JSON.stringify(resultObj),
-                executionPriceInWei,
-                devFee,
-                devAddress,
-                opToken)
-                .then()
-                .catch((err) => {
-                  log.error(`[server] Failed sending results ${err}`);
-                });
-            }
-          })
-          .catch((err) => {
-            log.error(`[server] AWS search query failed with error ${err}`);
-          });
-      })
-      .catch((err) => {
-        log.error(`[server] AWS failed with error ${err}`);
-      });
+          aws.getFunctionData(funcName)
+            .then((dataFun) => {
+              const { devFee } = dataFun;
+              const devAddress = dataFun.funcOwner;
+              const resultObj = {
+                result: lambdaResult,
+                duration: billedDuration,
+                price: executionPriceInWei + Number(devFee),
+              };
+              if (result.FunctionError) {
+                console.log(result.FunctionError);
+                aws.updateRecord(funcName, devAddress)
+                  .then(() => {
+                    log.error('[server] Function Timeout overflow, set function to hidden');
+                    smartHandler.sendRunFailure(funcName, opToken)
+                      .catch((err) => {
+                        log.error(`[server] Failed sending results ${err}`);
+                      });
+                  }).catch(() => {
+                    log.error('[server] Can\'t update DB record');
+                  });
+              } else {
+                smartHandler.sendRunResult(JSON.stringify(resultObj),
+                  executionPriceInWei,
+                  devFee,
+                  devAddress,
+                  opToken)
+                  .then()
+                  .catch((err) => {
+                    log.error(`[server] Failed sending results ${err}`);
+                  });
+              }
+            })
+            .catch((err) => {
+              log.error(`[server] AWS search query failed with error ${err}`);
+            });
+        })
+        .catch((err) => {
+          log.error(`[server] AWS failed with error ${err}`);
+        });
+    }, TIMEOUT_DELAY);
   },
 ).catch(log.error);
 
 smartHandler.listenDeleteRequest(
   (opToken, functionName, devAddress) => {
+    setTimeout(() => {
     log.info('[server] Received token to delete function');
     log.info('Deleting lambda');
     aws.deleteFunction(functionName, devAddress)
@@ -136,6 +143,7 @@ smartHandler.listenDeleteRequest(
         log.info(`[server] Failed to delete function ${err}`);
         smartHandler.sendDeleteFailed(opToken);
       });
+    }, TIMEOUT_DELAY);
   },
 ).catch(log.error);
 

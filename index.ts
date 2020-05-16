@@ -25,7 +25,7 @@ const {
 const httpProvider = new JsonRpcProvider(CUSTOM_NET_URL);
 const ethersHelper = new EthersHelper(httpProvider);
 const wallet = ethersHelper.getWalletFromPrivate(ADMIN_WALLET_PRIVATE_KEY);
-
+/*
 ethersHelper.loadSmartContract(DELETE_CONTRACT_ADDRESS, 'DeployContract', wallet)
   .then((contract) => {
     console.log('ok');
@@ -39,4 +39,33 @@ ethersHelper.loadSmartContract(DELETE_CONTRACT_ADDRESS, 'DeployContract', wallet
     .catch(console.error);
   })
   .catch(console.error);
-
+*/
+ethersHelper.loadSmartContract(STORAGE_CONTRACT_ADDRESS, 'EtherlessStorage', wallet)
+  .then((contract) => {
+    console.log('ok');
+    contract.setWhitelistAddress(RUN_CONTRACT_ADDRESS)
+    .then((tx) => {
+        console.log('ok');
+         tx.wait()
+          .then(console.log)
+          .catch(console.error);
+        contract.setWhitelistAddress(DEPLOY_CONTRACT_ADDRESS)
+        .then((tx) => {
+            console.log('ok');
+            tx.wait()
+              .then(console.log)
+              .catch(console.error);
+            contract.setWhitelistAddress(DELETE_CONTRACT_ADDRESS)
+            .then((tx) => {
+                console.log('ok');
+                tx.wait()
+                  .then(console.log)
+                  .catch(console.error);
+              })
+            .catch(console.error);
+          })
+        .catch(console.error);
+      })
+    .catch(console.error);
+  })
+  .catch(console.error);

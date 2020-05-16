@@ -47,7 +47,7 @@ function buildClient(opts: ClientOption): EtherlessClient {
     // TODO: Choose here
     let httpProvider = new JsonRpcProvider();
     const ethersHelper = new EthersHelper(httpProvider);
-    ethereumManager = new EthereumManager(ethersHelper);
+    ethereumManager = new EthereumManager(ethersHelper, contracts);
     // const infura = new InfuraProvider('ropsten', process.env.INFURA_PROJECT_ID);
     // const ethersHelper = new EthersHelper(infura, ETHERSCAN_API_KEY);
     // ethereumManager = new EthereumManager(ethersHelper, contracts);
