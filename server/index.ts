@@ -1,14 +1,6 @@
-// import { LambdaManager, LambdaManagerInterface } from './LambdaManager';
-
-
 import { JsonRpcProvider } from 'ethers/providers';
+// import { InfuraProvider } from 'ethers/providers';
 
-// import ServerHandler from './ServerHandler';
-
-
-// import { ServerHandlerInterface, ServerHandlerInterface } from './ServerHandler';
-
-// import { SmartHanler } from './SmartHandler';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import fileUpload from 'express-fileupload';
@@ -27,10 +19,13 @@ const {
   ETHERSCAN_API_KEY,
   ADMIN_WALLET_PRIVATE_KEY,
   INFURA_PROJECT_ID,
+  CUSTOM_NET_URL,
   AWS_ID,
   AWS_KEY,
   AWS_LAMBDA_ROLE,
 } = process.env;
+
+const TIMEOUT_DELAY = 5000;
 
 const app = express();
 const aws = new AWSManager(AWS_ID, AWS_KEY, AWS_LAMBDA_ROLE);
@@ -45,10 +40,16 @@ app.use(fileUpload({
   },
 }));
 
-const httpProvider = new JsonRpcProvider();
+// TODO: choose here
+console.log();
+const httpProvider = new JsonRpcProvider(CUSTOM_NET_URL);
 log.info(`[server] Infura API Key: ${INFURA_PROJECT_ID}`);
 log.info(`[server] Etherscan API Key: ${ETHERSCAN_API_KEY}`);
 const ethersHelper = new EthersHelper(httpProvider);
+// const infuraProvider = new InfuraProvider('ropsten', INFURA_PROJECT_ID);
+// log.info(`[server] Infura API Key: ${INFURA_PROJECT_ID}`);
+// log.info(`[server] Etherscan API Key: ${ETHERSCAN_API_KEY}`);
+// const ethersHelper = new EthersHelper(infuraProvider, ETHERSCAN_API_KEY);
 const smartHandler = new SmartHandler(ethersHelper, ADMIN_WALLET_PRIVATE_KEY);
 
 interface TokenData {
@@ -64,13 +65,13 @@ smartHandler.listenTokenRequests((reqToken: string, opToken: string, devAddress:
     tokens[reqToken] = { devAddress, opToken };
     log.info(tokens);
     smartHandler.sendRequestUpload(opToken);
-  }, 10000);
+  }, TIMEOUT_DELAY);
 });
 
 smartHandler.listenRunRequest(
   (opToken: string, funcName: string, params: string) => {
-    log.info('[server] Received token from blockchain to run.');
     setTimeout(() => {
+      log.info('[server] Received token from blockchain to run.');
       log.info('[server] Executing lambda.');
       aws.invokeLambda(funcName, params)
         .then((result) => {
@@ -82,27 +83,41 @@ smartHandler.listenRunRequest(
           const billedDuration = aws.getExecutionTimeFrom(logResult);
           const awsTier = 0.0000002083; // for lambda function with 128 MB cpu environment
           const executionPrice = (billedDuration / 1000) * (128 / 1024) * awsTier * 1.1;
-          const executionPriceInWei = Math.floor(executionPrice * 0.006 * 1000000000000000000);
+          const executionPriceInWei = Math.floor(executionPrice * 0.01 * (10 ** 18));
           // change $ -> ETH del 12 maggio 2020
-          const resultObj = {
-            result: lambdaResult,
-            duration: billedDuration,
-            price: executionPriceInWei,
-          };
 
           aws.getFunctionData(funcName)
             .then((dataFun) => {
-              const devFee = dataFun.funcPrice;
+              const { devFee } = dataFun;
               const devAddress = dataFun.funcOwner;
-
-              smartHandler.sendRunResult(JSON.stringify(resultObj),
-                executionPriceInWei,
-                devFee,
-                devAddress,
-                opToken)
-                .catch((err) => {
-                  log.error(`[server] Failed sending results ${err}`);
-                });
+              const resultObj = {
+                result: lambdaResult,
+                duration: billedDuration,
+                price: executionPriceInWei + Number(devFee),
+              };
+              if (result.FunctionError) {
+                console.log(result.FunctionError);
+                aws.updateRecord(funcName, devAddress)
+                  .then(() => {
+                    log.error('[server] Function Timeout overflow, set function to hidden');
+                    smartHandler.sendRunFailure(funcName, opToken)
+                      .catch((err) => {
+                        log.error(`[server] Failed sending results ${err}`);
+                      });
+                  }).catch(() => {
+                    log.error('[server] Can\'t update DB record');
+                  });
+              } else {
+                smartHandler.sendRunResult(JSON.stringify(resultObj),
+                  executionPriceInWei,
+                  devFee,
+                  devAddress,
+                  opToken)
+                  .then()
+                  .catch((err) => {
+                    log.error(`[server] Failed sending results ${err}`);
+                  });
+              }
             })
             .catch((err) => {
               log.error(`[server] AWS search query failed with error ${err}`);
@@ -111,24 +126,24 @@ smartHandler.listenRunRequest(
         .catch((err) => {
           log.error(`[server] AWS failed with error ${err}`);
         });
-    }, 10000);
+    }, TIMEOUT_DELAY);
   },
 ).catch(log.error);
 
 smartHandler.listenDeleteRequest(
   (opToken, functionName, devAddress) => {
-    log.info('[server] Received token to delete function');
     setTimeout(() => {
-      log.info('Deleting lambda');
-      aws.deleteFunction(functionName, devAddress)
-        .then(() => {
-          smartHandler.sendDeleteSuccess(opToken, functionName);
-        })
-        .catch((err) => {
-          log.info(`[server] Failed to delete function ${err}`);
-          smartHandler.sendDeleteFailed(opToken);
-        });
-    }, 10000);
+    log.info('[server] Received token to delete function');
+    log.info('Deleting lambda');
+    aws.deleteFunction(functionName, devAddress)
+      .then(() => {
+        smartHandler.sendDeleteSuccess(opToken, functionName);
+      })
+      .catch((err) => {
+        log.info(`[server] Failed to delete function ${err}`);
+        smartHandler.sendDeleteFailed(opToken);
+      });
+    }, TIMEOUT_DELAY);
   },
 ).catch(log.error);
 
@@ -147,7 +162,6 @@ app.post('/deploy', (req, res) => {
     const zipStream = req.files.funcZip.data;
     const configStream = req.files.funcConfig.data;
     const { token, funcName } = req.body;
-
     const tokenManager = new TokenManager();
     tokenManager.computeProof(token)
       .then((proof) => {
@@ -157,9 +171,16 @@ app.post('/deploy', (req, res) => {
             aws.deployFunction(zipStream, funcDataObj)
               .then(() => {
                 log.info('Function deployed.');
+                const awsTier = 0.0000002083; // for lambda function with 128 MB cpu environment
+                const price = (funcDataObj.timeout + 5)
+                  * (128 / 1024)
+                  * awsTier
+                  * 1.1;
+                let priceInWei = Math.floor(price * 0.01 * (10 ** 18));
+                priceInWei = Number(priceInWei) + Number(funcDataObj.fee);
                 smartHandler.terminateDeploy(funcName,
                   tokens[proof].devAddress,
-                  funcDataObj.fee * 1000,
+                  priceInWei,
                   tokens[proof].opToken)
                   .then(() => {
                     log.info(`[server] ${funcDataObj.funcName}`);

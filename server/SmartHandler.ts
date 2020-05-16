@@ -1,14 +1,13 @@
 import { Wallet } from 'ethers';
 import log from './common/Logger';
 import EthersHelper from './common/EthersHelper';
-// import { TokenManagerInterface } from './common/TokenManager';
 
 const DEPLOY_EVENT = 'uploadToken';
 const RUN_EVENT = 'runRequest';
 const DELETE_EVENT = 'deleteRequest';
 
 class SmartHandler {
-  private readonly ethersHelper: EthersHelper; // tipo: EthersHelper
+  private readonly ethersHelper: EthersHelper;
 
   private readonly wallet: Wallet;
 
@@ -23,6 +22,8 @@ class SmartHandler {
   listenTokenRequests(callback:
   (proof: string, opToken: string, devAddress: string) => void): Promise<void> {
     return new Promise((resolve, reject) => {
+      // TODO: Don't choose here
+      // this.ethersHelper.loadSmartContract(process.env.DEPLOY_CONTRACT_ADDRESS, this.wallet)
       this.ethersHelper.loadSmartContract(process.env.DEPLOY_CONTRACT_ADDRESS, 'DeployContract', this.wallet)
         .then((deployContract) => {
           deployContract
@@ -42,6 +43,8 @@ class SmartHandler {
 
   sendRequestUpload(operationToken: string): Promise<void> {
     return new Promise((resolve, reject) => {
+      // TODO: Don't choose here
+      // this.ethersHelper.loadSmartContract(process.env.DEPLOY_CONTRACT_ADDRESS, this.wallet)
       this.ethersHelper.loadSmartContract(process.env.DEPLOY_CONTRACT_ADDRESS, 'DeployContract', this.wallet)
         .then((deployContract) => {
           log.info('[SmartHandler]\tinviata request upload');
@@ -55,6 +58,8 @@ class SmartHandler {
 
   terminateDeploy(funcName: string, devAddress: string, funcPrice: number, opToken: string) {
     return new Promise((resolve, reject) => {
+      // TODO: Don't choose here
+      // this.ethersHelper.loadSmartContract(process.env.DEPLOY_CONTRACT_ADDRESS, this.wallet)
       this.ethersHelper.loadSmartContract(process.env.DEPLOY_CONTRACT_ADDRESS, 'DeployContract', this.wallet)
         .then((deployContract) => {
           deployContract
@@ -68,6 +73,8 @@ class SmartHandler {
 
   refundDeploy(funcName: string, opToken: string) {
     return new Promise((resolve, reject) => {
+      // TODO: Don't choose here
+      // this.ethersHelper.loadSmartContract(process.env.DEPLOY_CONTRACT_ADDRESS, this.wallet)
       this.ethersHelper.loadSmartContract(process.env.DEPLOY_CONTRACT_ADDRESS, 'DeployContract', this.wallet)
         .then((deployContract) => {
           deployContract
@@ -83,6 +90,8 @@ class SmartHandler {
     funcName: string,
     params: string) => void): Promise<void> {
     return new Promise((resolve, reject) => {
+      // TODO: Don't choose here
+      // this.ethersHelper.loadSmartContract(process.env.RUN_CONTRACT_ADDRESS, this.wallet)
       this.ethersHelper.loadSmartContract(process.env.RUN_CONTRACT_ADDRESS, 'RunContract', this.wallet)
         .then((runContract) => {
           runContract
@@ -99,7 +108,8 @@ class SmartHandler {
     funcOwner: string,
     opToken: string): Promise<void> {
     return new Promise((resolve, reject) => {
-      // this.ethersHelper.loadSmartContract(process.env.STORAGE_CONTRACT_ADDRESS, this.wallet)
+      // TODO: Don't choose here
+      // this.ethersHelper.loadSmartContract(process.env.RUN_CONTRACT_ADDRESS, this.wallet)
       this.ethersHelper.loadSmartContract(process.env.RUN_CONTRACT_ADDRESS, 'RunContract', this.wallet)
         .then((runContract) => {
           log.info('[SmartHandler]\tsending results');
@@ -125,10 +135,26 @@ class SmartHandler {
     });
   }
 
+  sendRunFailure(funcName: string, opToken: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      // TODO: Don't choose here
+      // this.ethersHelper.loadSmartContract(process.env.RUN_CONTRACT_ADDRESS, this.wallet)
+      this.ethersHelper.loadSmartContract(process.env.RUN_CONTRACT_ADDRESS, 'RunContract', this.wallet)
+        .then((runContract) => {
+          log.info('[SmartHandler]\tinviata run failed');
+          runContract.sendRunFailure(funcName, opToken);
+          resolve();
+        })
+        .catch(reject);
+    });
+  }
+
   listenDeleteRequest(callback: (opToken: string,
     funcName: string,
     devAddress: string) => void): Promise<void> {
     return new Promise((resolve, reject) => {
+      // TODO: Don't choose here
+      // this.ethersHelper.loadSmartContract(process.env.DELETE_CONTRACT_ADDRESS, this.wallet)
       this.ethersHelper.loadSmartContract(process.env.DELETE_CONTRACT_ADDRESS, 'DeleteContract', this.wallet)
         .then((deleteContract) => {
           deleteContract
@@ -147,10 +173,12 @@ class SmartHandler {
 
   sendDeleteSuccess(operationToken: string, funcName: string): Promise<void> {
     return new Promise((resolve, reject) => {
+      // TODO: Don't choose here
+      // this.ethersHelper.loadSmartContract(process.env.DELETE_CONTRACT_ADDRESS, this.wallet)
       this.ethersHelper.loadSmartContract(process.env.DELETE_CONTRACT_ADDRESS, 'DeleteContract', this.wallet)
-        .then((deployContract) => {
+        .then((deleteContract) => {
           log.info('[SmartHandler]\tinviata delete success');
-          deployContract.sendDeleteSuccess(operationToken, funcName);
+          deleteContract.sendDeleteSuccess(operationToken, funcName);
           resolve();
         })
         .catch(reject);
@@ -159,10 +187,12 @@ class SmartHandler {
 
   sendDeleteFailed(operationToken: string): Promise<void> {
     return new Promise((resolve, reject) => {
+      // TODO: don't choose here
+      // this.ethersHelper.loadSmartContract(process.env.DELETE_CONTRACT_ADDRESS, this.wallet)
       this.ethersHelper.loadSmartContract(process.env.DELETE_CONTRACT_ADDRESS, 'DeleteContract', this.wallet)
-        .then((deployContract) => {
+        .then((deleteContract) => {
           log.info('[SmartHandler]\tinviata delete failed');
-          deployContract.sendDeleteFailure(operationToken);
+          deleteContract.sendDeleteFailure(operationToken);
           resolve();
         })
         .catch(reject);

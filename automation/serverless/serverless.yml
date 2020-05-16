@@ -72,6 +72,7 @@ resources:
             - description
             - params
             - price
+            - devFee
             - usage
             ProjectionType: INCLUDE
           ProvisionedThroughput:
@@ -87,6 +88,7 @@ resources:
             - description
             - params
             - price
+            - devFee
             - unavailable
             - usage
             ProjectionType: INCLUDE

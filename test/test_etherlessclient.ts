@@ -7,7 +7,7 @@ import path from 'path';
 import { TokenManagerInterface } from '../cli/common/TokenManager';
 import TokenManager from '../cli/common/TokenManager';
 import { ServerManagerInterface, RequestOptions, ResponseDeployInterface, ServerManager } from '../cli/ServerManager';
-import { EthereumManagerInterface, EthereumManager } from '../cli/EthereumManager';
+import { EthereumManagerInterface, EthereumManager, ContractAddressesInterface } from '../cli/EthereumManager';
 import EthersHelper from '../cli/common/EthersHelper';
 import { Wallet } from 'ethers';
 import { InfuraProvider } from 'ethers/providers';
@@ -19,7 +19,13 @@ const apiKey = 'PC13EX7VI58TAV5CT2474YZVFF9XNI1XNJ';
 const serverLink = 'http://ec2-3-8-120-14.eu-west-2.compute.amazonaws.com:3000';
 const apiLink = 'https://w1hr7l3wui.execute-api.eu-west-2.amazonaws.com/dev/';
 const serverManager = new ServerManager(serverLink, apiLink); //TO DO Aggiungere link server
-const ethereumManager = new EthereumManager(new EthersHelper(infuraProvider, apiKey));
+const contracts: ContractAddressesInterface = {
+  deploy: '0x916a5D3F9d63Ce72cF1e8c1E92235EE50F097De4',
+  run: '0x933B4c43A682F63Ca81659179C042Fe7ebEB5D83',
+  remove: '0x15304FC28C3281003b4eA7a8f996508dA9c84fd4',
+  storage: '0xe2D64EDc6063a4748007862a3A46Eea39D51184C',
+};
+const ethereumManager = new EthereumManager(new EthersHelper(infuraProvider, apiKey), contracts);
 const tokenManager = new TokenManager();
 const etherlessClient = new EtherlessClient({
   ethereumManager,
@@ -59,7 +65,9 @@ describe('searchFunction', () => {
         expect(JSON.stringify(response)).include('{"funcName":"TestingFunction","params":"integer, integer","unavailable":"false","usage":"function for testing","price":"1","description":"Function used by unit test","devAddress":"testAddress"}');
         done();
         resolve();
-      }).catch(reject);
+      }).catch((error) => {
+        reject(new Error(error.toString()));
+      });
     }).catch(assert.fail);
   });
 });
@@ -73,7 +81,9 @@ describe('searchFunction empty', () => {
         expect(JSON.stringify(response)).to.be.equal('{"message":"Internal server error"}');
         done();
         resolve();
-      }).catch(reject);
+      }).catch((error) => {
+        reject(new Error(error.toString()));
+      });
     }).catch(assert.fail);
   });
 });
@@ -90,7 +100,9 @@ describe('listOwner', () => {
         expect(JSON.stringify(response)).include('{"funcName":"TestingFunction","params":"integer, integer","unavailable":"false","usage":"function for testing","price":"1","description":"Function used by unit test","devAddress":"testAddress"}');
         done();
         resolve();
-      }).catch(reject);
+      }).catch((error) => {
+        reject(new Error(error.toString()));
+      });
     }).catch(assert.fail);
   });
 });
@@ -107,7 +119,9 @@ describe('listOwner empty', () => {
         expect(JSON.stringify(response)).to.be.equal('{"message":"Internal server error"}');
         done();
         resolve();
-      }).catch(reject);
+      }).catch((error) => {
+        reject(new Error(error.toString()));
+      });
     }).catch(assert.fail);
   });
 });
@@ -144,7 +158,9 @@ describe('list', () => {
         expect(JSON.stringify(response)).include('{"funcName":"TestingFunction","params":"integer, integer","unavailable":"false","usage":"function for testing","price":"1","description":"Function used by unit test","devAddress":"testAddress"}');
         done();
         resolve();
-      }).catch(reject);
+      }).catch((error) => {
+        reject(new Error(error.toString()));
+      });
     }).catch(assert.fail);
   });
 });
@@ -176,7 +192,9 @@ describe('listHidden', () => {
         expect(JSON.stringify(response)).include('{"funcName":"TestingFunction2","params":"integer, integer","unavailable":"true","usage":"function for testing","price":"1","description":"Function used by unit test","devAddress":"testAddress2"}');
         done();
         resolve();
-      }).catch(reject);
+      }).catch((error) => {
+        reject(new Error(error.toString()));
+      });
     }).catch(assert.fail);
   });
 });
