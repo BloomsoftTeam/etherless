@@ -1,10 +1,7 @@
 import yargs from 'yargs';
 import dotenv from 'dotenv';
-<<<<<<< HEAD
 import { JsonRpcProvider } from 'ethers/providers';
-=======
-import { InfuraProvider } from 'ethers/providers';
->>>>>>> origin/master
+// import { InfuraProvider } from 'ethers/providers';
 import fs from 'fs';
 import path from 'path';
 import prompt from 'prompt';

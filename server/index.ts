@@ -19,6 +19,7 @@ const {
   ETHERSCAN_API_KEY,
   ADMIN_WALLET_PRIVATE_KEY,
   INFURA_PROJECT_ID,
+  CUSTOM_NET_URL,
   AWS_ID,
   AWS_KEY,
   AWS_LAMBDA_ROLE,
@@ -38,7 +39,8 @@ app.use(fileUpload({
 }));
 
 // TODO: choose here
-const httpProvider = new JsonRpcProvider();
+console.log();
+const httpProvider = new JsonRpcProvider(CUSTOM_NET_URL);
 log.info(`[server] Infura API Key: ${INFURA_PROJECT_ID}`);
 log.info(`[server] Etherscan API Key: ${ETHERSCAN_API_KEY}`);
 const ethersHelper = new EthersHelper(httpProvider);

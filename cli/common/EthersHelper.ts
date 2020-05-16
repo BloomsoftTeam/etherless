@@ -6,6 +6,7 @@ import { setupLoader, TruffleLoader } from '@openzeppelin/contract-loader';
 
 class EthersHelper {
   readonly provider: JsonRpcProvider;
+
   readonly loader: TruffleLoader;
 
   constructor(rpcProvider: JsonRpcProvider) {
@@ -24,11 +25,22 @@ class EthersHelper {
     return new Wallet(privateKey, this.provider);
   }
 
-  loadSmartContract(contractAddress: string, contractName: string, wallet?: Wallet): Promise<Contract> {
+  loadSmartContract(contractAddress: string, contractName: string, wallet?: Wallet):
+  Promise<Contract> {
     return new Promise((resolve, reject) => {
-      const contract = this.loader.fromArtifact(contractName, contractAddress);
-      if (contract) resolve(contract);
-      else reject(contract);
+      const contractArtifact = this.loader.fromArtifact(contractName, contractAddress);
+      const contractABI = contractArtifact.abi;
+      const contract = new Contract(contractAddress, contractABI, this.provider);
+      if (contract) {
+        if (wallet) {
+          resolve(contract.connect(wallet));
+          // resolve(contract);
+        } else {
+          resolve(contract);
+        }
+      } else {
+        reject(contract);
+      }
     });
   }
 }
