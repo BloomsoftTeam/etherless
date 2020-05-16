@@ -1,0 +1,502 @@
+{
+  "contracts": {
+    "DeleteContract": {
+      "address": "0xA57B8a5584442B467b4689F1144D269d096A3daF",
+      "constructorCode": "608060405261131c806100136000396000f3fe",
+      "bodyBytecodeHash": "a36831e8b362aeb1ef8d53d142340e9fc7e753550935c91a1fe5c4aa39e9621b",
+      "localBytecodeHash": "1d8a2eaf8ed420e4cd70cd6e0a3fcd7a5d1a3e877a47310d5f716b56386f7187",
+      "deployedBytecodeHash": "1d8a2eaf8ed420e4cd70cd6e0a3fcd7a5d1a3e877a47310d5f716b56386f7187",
+      "types": {
+        "t_bool": {
+          "id": "t_bool",
+          "kind": "elementary",
+          "label": "bool"
+        },
+        "t_uint256": {
+          "id": "t_uint256",
+          "kind": "elementary",
+          "label": "uint256"
+        },
+        "t_array:50<t_uint256>": {
+          "id": "t_array:50<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "50",
+          "kind": "array",
+          "label": "uint256[50]"
+        },
+        "t_address": {
+          "id": "t_address",
+          "kind": "elementary",
+          "label": "address"
+        }
+      },
+      "storage": [
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "initialized",
+          "astId": 344,
+          "type": "t_bool",
+          "src": "757:24:3"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "initializing",
+          "astId": 346,
+          "type": "t_bool",
+          "src": "876:25:3"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "______gap",
+          "astId": 408,
+          "type": "t_array:50<t_uint256>",
+          "src": "1982:29:3"
+        },
+        {
+          "contract": "Ownable",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/ownership/Ownable.sol",
+          "label": "_owner",
+          "astId": 226,
+          "type": "t_address",
+          "src": "526:22:2"
+        },
+        {
+          "contract": "Ownable",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/ownership/Ownable.sol",
+          "label": "______gap",
+          "astId": 339,
+          "type": "t_array:50<t_uint256>",
+          "src": "2471:29:2"
+        },
+        {
+          "contract": "DeleteContract",
+          "path": "contracts/deleteContract.sol",
+          "label": "etherlessStorage",
+          "astId": 418,
+          "type": "t_address",
+          "src": "116:50:4"
+        }
+      ],
+      "warnings": {
+        "hasConstructor": false,
+        "hasSelfDestruct": false,
+        "hasDelegateCall": false,
+        "hasInitialValuesInDeclarations": false,
+        "uninitializedBaseContracts": []
+      }
+    },
+    "EtherlessStorage": {
+      "address": "0x26b4AFb60d6C903165150C6F0AA14F8016bE4aec",
+      "constructorCode": "6080604052613392806100136000396000f3fe",
+      "bodyBytecodeHash": "e8503c2139c1f50d08790c5ad1504d8a3302cc72830893a80aff16e30aa39b7b",
+      "localBytecodeHash": "7bcba7917ac7f661d2f590c95412f629f221ec6e94a3a47eb54708f01e212cad",
+      "deployedBytecodeHash": "7bcba7917ac7f661d2f590c95412f629f221ec6e94a3a47eb54708f01e212cad",
+      "types": {
+        "t_bool": {
+          "id": "t_bool",
+          "kind": "elementary",
+          "label": "bool"
+        },
+        "t_uint256": {
+          "id": "t_uint256",
+          "kind": "elementary",
+          "label": "uint256"
+        },
+        "t_array:50<t_uint256>": {
+          "id": "t_array:50<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "50",
+          "kind": "array",
+          "label": "uint256[50]"
+        },
+        "t_address": {
+          "id": "t_address",
+          "kind": "elementary",
+          "label": "address"
+        },
+        "t_mapping<t_address>": {
+          "id": "t_mapping<t_address>",
+          "valueType": "t_address",
+          "label": "mapping(key => address)",
+          "kind": "mapping"
+        },
+        "t_mapping<t_uint256>": {
+          "id": "t_mapping<t_uint256>",
+          "valueType": "t_uint256",
+          "label": "mapping(key => uint256)",
+          "kind": "mapping"
+        },
+        "t_enum<EtherlessStorage.Availability>": {
+          "id": "t_enum<EtherlessStorage.Availability>",
+          "kind": "enum",
+          "label": "EtherlessStorage.Availability",
+          "members": [
+            "unassigned",
+            "available",
+            "unavailable"
+          ]
+        },
+        "t_mapping<t_enum<EtherlessStorage.Availability>>": {
+          "id": "t_mapping<t_enum<EtherlessStorage.Availability>>",
+          "valueType": "t_enum<EtherlessStorage.Availability>",
+          "label": "mapping(key => EtherlessStorage.Availability)",
+          "kind": "mapping"
+        },
+        "t_mapping<t_bool>": {
+          "id": "t_mapping<t_bool>",
+          "valueType": "t_bool",
+          "label": "mapping(key => bool)",
+          "kind": "mapping"
+        }
+      },
+      "storage": [
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "initialized",
+          "astId": 344,
+          "type": "t_bool",
+          "src": "757:24:3"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "initializing",
+          "astId": 346,
+          "type": "t_bool",
+          "src": "876:25:3"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "______gap",
+          "astId": 408,
+          "type": "t_array:50<t_uint256>",
+          "src": "1982:29:3"
+        },
+        {
+          "contract": "Ownable",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/ownership/Ownable.sol",
+          "label": "_owner",
+          "astId": 226,
+          "type": "t_address",
+          "src": "526:22:2"
+        },
+        {
+          "contract": "Ownable",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/ownership/Ownable.sol",
+          "label": "______gap",
+          "astId": 339,
+          "type": "t_array:50<t_uint256>",
+          "src": "2471:29:2"
+        },
+        {
+          "contract": "EtherlessStorage",
+          "path": "contracts/etherlessStorage.sol",
+          "label": "funcOwnership",
+          "astId": 786,
+          "type": "t_mapping<t_address>",
+          "src": "522:49:6"
+        },
+        {
+          "contract": "EtherlessStorage",
+          "path": "contracts/etherlessStorage.sol",
+          "label": "funcPrices",
+          "astId": 790,
+          "type": "t_mapping<t_uint256>",
+          "src": "577:43:6"
+        },
+        {
+          "contract": "EtherlessStorage",
+          "path": "contracts/etherlessStorage.sol",
+          "label": "funcAvailability",
+          "astId": 794,
+          "type": "t_mapping<t_enum<EtherlessStorage.Availability>>",
+          "src": "626:57:6"
+        },
+        {
+          "contract": "EtherlessStorage",
+          "path": "contracts/etherlessStorage.sol",
+          "label": "operationUsers",
+          "astId": 798,
+          "type": "t_mapping<t_address>",
+          "src": "690:51:6"
+        },
+        {
+          "contract": "EtherlessStorage",
+          "path": "contracts/etherlessStorage.sol",
+          "label": "operationCosts",
+          "astId": 802,
+          "type": "t_mapping<t_uint256>",
+          "src": "747:48:6"
+        },
+        {
+          "contract": "EtherlessStorage",
+          "path": "contracts/etherlessStorage.sol",
+          "label": "whitelistAddresses",
+          "astId": 806,
+          "type": "t_mapping<t_bool>",
+          "src": "802:52:6"
+        }
+      ],
+      "warnings": {
+        "hasConstructor": false,
+        "hasSelfDestruct": false,
+        "hasDelegateCall": false,
+        "hasInitialValuesInDeclarations": false,
+        "uninitializedBaseContracts": []
+      }
+    },
+    "DeployContract": {
+      "address": "0xDb56f2e9369E0D7bD191099125a3f6C370F8ed15",
+      "constructorCode": "6080604052611870806100136000396000f3fe",
+      "bodyBytecodeHash": "a2bc35679567a20c93af48420e2ac98db18eccf807e9cd226a3ccf547abe728b",
+      "localBytecodeHash": "b9630abbd880813964947df54fafbbbf579120fedc28afe39929ccaf82bc296d",
+      "deployedBytecodeHash": "b9630abbd880813964947df54fafbbbf579120fedc28afe39929ccaf82bc296d",
+      "types": {
+        "t_bool": {
+          "id": "t_bool",
+          "kind": "elementary",
+          "label": "bool"
+        },
+        "t_uint256": {
+          "id": "t_uint256",
+          "kind": "elementary",
+          "label": "uint256"
+        },
+        "t_array:50<t_uint256>": {
+          "id": "t_array:50<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "50",
+          "kind": "array",
+          "label": "uint256[50]"
+        },
+        "t_address": {
+          "id": "t_address",
+          "kind": "elementary",
+          "label": "address"
+        }
+      },
+      "storage": [
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "initialized",
+          "astId": 344,
+          "type": "t_bool",
+          "src": "757:24:3"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "initializing",
+          "astId": 346,
+          "type": "t_bool",
+          "src": "876:25:3"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "______gap",
+          "astId": 408,
+          "type": "t_array:50<t_uint256>",
+          "src": "1982:29:3"
+        },
+        {
+          "contract": "Ownable",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/ownership/Ownable.sol",
+          "label": "_owner",
+          "astId": 226,
+          "type": "t_address",
+          "src": "526:22:2"
+        },
+        {
+          "contract": "Ownable",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/ownership/Ownable.sol",
+          "label": "______gap",
+          "astId": 339,
+          "type": "t_array:50<t_uint256>",
+          "src": "2471:29:2"
+        },
+        {
+          "contract": "DeployContract",
+          "path": "contracts/deployContract.sol",
+          "label": "etherlessStorage",
+          "astId": 562,
+          "type": "t_address",
+          "src": "116:50:5"
+        }
+      ],
+      "warnings": {
+        "hasConstructor": false,
+        "hasSelfDestruct": false,
+        "hasDelegateCall": false,
+        "hasInitialValuesInDeclarations": false,
+        "uninitializedBaseContracts": []
+      }
+    },
+    "RunContract": {
+      "address": "0xb09bCc172050fBd4562da8b229Cf3E45Dc3045A6",
+      "constructorCode": "6080604052611a22806100136000396000f3fe",
+      "bodyBytecodeHash": "b64c0f0812a580ec19d3c116da098c39774b46f3563387cd15d77709e08abf27",
+      "localBytecodeHash": "3b1f924d78ff8828d11b5786d0c19a2303c6e6c78f5d04aa05504cbdc551fd26",
+      "deployedBytecodeHash": "3b1f924d78ff8828d11b5786d0c19a2303c6e6c78f5d04aa05504cbdc551fd26",
+      "types": {
+        "t_bool": {
+          "id": "t_bool",
+          "kind": "elementary",
+          "label": "bool"
+        },
+        "t_uint256": {
+          "id": "t_uint256",
+          "kind": "elementary",
+          "label": "uint256"
+        },
+        "t_array:50<t_uint256>": {
+          "id": "t_array:50<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "50",
+          "kind": "array",
+          "label": "uint256[50]"
+        },
+        "t_address": {
+          "id": "t_address",
+          "kind": "elementary",
+          "label": "address"
+        }
+      },
+      "storage": [
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "initialized",
+          "astId": 344,
+          "type": "t_bool",
+          "src": "757:24:3"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "initializing",
+          "astId": 346,
+          "type": "t_bool",
+          "src": "876:25:3"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "______gap",
+          "astId": 408,
+          "type": "t_array:50<t_uint256>",
+          "src": "1982:29:3"
+        },
+        {
+          "contract": "Ownable",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/ownership/Ownable.sol",
+          "label": "_owner",
+          "astId": 226,
+          "type": "t_address",
+          "src": "526:22:2"
+        },
+        {
+          "contract": "Ownable",
+          "path": "@openzeppelin/contracts-ethereum-package/contracts/ownership/Ownable.sol",
+          "label": "______gap",
+          "astId": 339,
+          "type": "t_array:50<t_uint256>",
+          "src": "2471:29:2"
+        },
+        {
+          "contract": "RunContract",
+          "path": "contracts/runContract.sol",
+          "label": "etherlessStorage",
+          "astId": 1675,
+          "type": "t_address",
+          "src": "146:50:8"
+        }
+      ],
+      "warnings": {
+        "hasConstructor": false,
+        "hasSelfDestruct": false,
+        "hasDelegateCall": false,
+        "hasInitialValuesInDeclarations": false,
+        "uninitializedBaseContracts": []
+      }
+    }
+  },
+  "solidityLibs": {},
+  "proxies": {
+    "oz-network/EtherlessStorage": [
+      {
+        "address": "0x0E696947A06550DEf604e82C26fd9E493e576337",
+        "version": "1.0.0",
+        "implementation": "0x26b4AFb60d6C903165150C6F0AA14F8016bE4aec",
+        "admin": "0x630589690929E9cdEFDeF0734717a9eF3Ec7Fcfe",
+        "kind": "Upgradeable"
+      },
+      {
+        "address": "0x21a59654176f2689d12E828B77a783072CD26680",
+        "version": "1.0.0",
+        "implementation": "0x26b4AFb60d6C903165150C6F0AA14F8016bE4aec",
+        "admin": "0x630589690929E9cdEFDeF0734717a9eF3Ec7Fcfe",
+        "kind": "Upgradeable"
+      }
+    ],
+    "oz-network/DeployContract": [
+      {
+        "address": "0x6eD79Aa1c71FD7BdBC515EfdA3Bd4e26394435cC",
+        "version": "1.0.0",
+        "implementation": "0xDb56f2e9369E0D7bD191099125a3f6C370F8ed15",
+        "admin": "0x630589690929E9cdEFDeF0734717a9eF3Ec7Fcfe",
+        "kind": "Upgradeable"
+      },
+      {
+        "address": "0xD86C8F0327494034F60e25074420BcCF560D5610",
+        "version": "1.0.0",
+        "implementation": "0xDb56f2e9369E0D7bD191099125a3f6C370F8ed15",
+        "admin": "0x630589690929E9cdEFDeF0734717a9eF3Ec7Fcfe",
+        "kind": "Upgradeable"
+      }
+    ],
+    "oz-network/RunContract": [
+      {
+        "address": "0xFC628dd79137395F3C9744e33b1c5DE554D94882",
+        "version": "1.0.0",
+        "implementation": "0xb09bCc172050fBd4562da8b229Cf3E45Dc3045A6",
+        "admin": "0x630589690929E9cdEFDeF0734717a9eF3Ec7Fcfe",
+        "kind": "Upgradeable"
+      },
+      {
+        "address": "0x4bf749ec68270027C5910220CEAB30Cc284c7BA2",
+        "version": "1.0.0",
+        "implementation": "0xb09bCc172050fBd4562da8b229Cf3E45Dc3045A6",
+        "admin": "0x630589690929E9cdEFDeF0734717a9eF3Ec7Fcfe",
+        "kind": "Upgradeable"
+      }
+    ],
+    "oz-network/DeleteContract": [
+      {
+        "address": "0x5f8e26fAcC23FA4cbd87b8d9Dbbd33D5047abDE1",
+        "version": "1.0.0",
+        "implementation": "0xA57B8a5584442B467b4689F1144D269d096A3daF",
+        "admin": "0x630589690929E9cdEFDeF0734717a9eF3Ec7Fcfe",
+        "kind": "Upgradeable"
+      },
+      {
+        "address": "0xaD888d0Ade988EbEe74B8D4F39BF29a8d0fe8A8D",
+        "version": "1.0.0",
+        "implementation": "0xA57B8a5584442B467b4689F1144D269d096A3daF",
+        "admin": "0x630589690929E9cdEFDeF0734717a9eF3Ec7Fcfe",
+        "kind": "Upgradeable"
+      }
+    ]
+  },
+  "manifestVersion": "2.2",
+  "version": "1.0.0",
+  "proxyAdmin": {
+    "address": "0x630589690929E9cdEFDeF0734717a9eF3Ec7Fcfe"
+  }
+}
