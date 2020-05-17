@@ -477,17 +477,17 @@ function helpFunction(argv) {
   } else if (argv.about_us) {
     console.log('We are Bloomsoft, a team of young students from Italy. We started working on Ertherless in 2019 as an academic project and then we sold it for a millionaire exit, so if you need some support sorry, but we’re on holiday on the Caribbean for the rest of our life!');
   } else {
-    console.log('Usage: etherless <command> [--option | -op] [<args>]');
-    console.log('\n');
+    console.log('Usage: etherless <command> [--option | -op] [<args>] \n');
     console.log('Commands:');
-    console.log('init allows the user associate a payment method by either creating a new ETH wallet or associating an existing one.');
-    console.log('list lists all available functions on the platform that can be executed from the user.');
-    console.log('deploy allows the developer deploy a function to the platform.');
-    console.log('run allows the user execute a function available in the platform.');
-    console.log('search allows the user search for a specific function based on a specified keyword.');
-    console.log('delete allows the developer delete one of its function available in the platform.');
-    console.log('logout allows the user delete the previously associated payment method.');
-    console.log('createConfig create a configuration file needed to deploy a function to the platform.');
+    console.log('init \t allows the user associate a payment method by either creating a new ETH wallet or associating an existing one.');
+    console.log('list \t lists all available functions on the platform that can be executed from the user.');
+    console.log('deploy \t allows the developer deploy a function to the platform.');
+    console.log('run \t allows the user execute a function available in the platform.');
+    console.log('search \t allows the user search for a specific function based on a specified keyword.');
+    console.log('delete \t allows the developer delete one of its function available in the platform.');
+    console.log('logout \t allows the user delete the previously associated payment method.');
+    console.log('createConfig \t create a configuration file needed to deploy a function to the platform.');
+    console.log('\n');
     console.log('’etherless get_help --command’ and ’etherless get_help -c’ show an accurate description for the selected command.');
   }
 }
